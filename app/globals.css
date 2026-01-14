@@ -1,0 +1,222 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ========================================
+       Museum Editorial Design System
+       Concept: Museum Catalogue / High-end Editorial
+       Atmosphere: Calm, Refined, Warm, Minimal
+       ======================================== */
+
+    /* Background - Porcelain */
+    --background: 43 33% 97%; /* #F9F7F2 */
+    --foreground: 24 23% 15%; /* #2D241E Espresso */
+
+    /* Card colors - Porcelain base */
+    --card: 43 33% 97%; /* #F9F7F2 */
+    --card-foreground: 24 23% 15%; /* #2D241E */
+
+    /* Popover colors */
+    --popover: 0 0% 100%;
+    --popover-foreground: 24 23% 15%;
+
+    /* Primary colors - Botanical Green */
+    --primary: 136 14% 33%; /* #4A5D4E */
+    --primary-foreground: 43 33% 97%;
+
+    /* Secondary colors - Taupe */
+    --secondary: 30 6% 53%; /* #8C857E */
+    --secondary-foreground: 43 33% 97%;
+
+    /* Muted colors */
+    --muted: 40 20% 92%; /* #EAE7DE */
+    --muted-foreground: 30 6% 53%; /* #8C857E */
+
+    /* Accent colors - Museum Gold */
+    --accent: 43 60% 52%; /* #D4AF37 */
+    --accent-foreground: 24 23% 15%;
+
+    /* Destructive colors */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Border and input - Subtle micro-embossed */
+    --border: 40 20% 90%; /* #EAE7DE */
+    --input: 40 20% 92%;
+    --ring: 136 14% 33%; /* Botanical Green */
+
+    /* Legacy AJU E&J brand colors (kept for compatibility) */
+    --navy: 210 100% 12%;
+    --navy-light: 210 80% 20%;
+    --gold: 43 60% 52%;
+    --sky-blue: 197 71% 73%;
+
+    /* Chart colors - Museum palette */
+    --chart-1: 43 60% 52%; /* Museum Gold */
+    --chart-2: 136 14% 33%; /* Botanical */
+    --chart-3: 30 6% 53%; /* Taupe */
+    --chart-4: 24 23% 15%; /* Espresso */
+    --chart-5: 40 20% 80%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 24 20% 10%;
+    --foreground: 43 33% 95%;
+    --card: 24 18% 14%;
+    --card-foreground: 43 33% 95%;
+    --popover: 24 18% 14%;
+    --popover-foreground: 43 33% 95%;
+    --primary: 136 20% 45%;
+    --primary-foreground: 24 20% 10%;
+    --secondary: 30 10% 35%;
+    --secondary-foreground: 43 33% 95%;
+    --muted: 24 15% 20%;
+    --muted-foreground: 30 10% 60%;
+    --accent: 43 55% 50%;
+    --accent-foreground: 24 20% 10%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 24 15% 22%;
+    --input: 24 15% 22%;
+    --ring: 136 20% 45%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Museum Editorial Typography */
+  h1, h2, h3 {
+    font-family: Georgia, Cambria, 'Times New Roman', Times, serif;
+    font-weight: 300;
+    color: #2D241E;
+  }
+}
+
+/* Museum Editorial Design System Utilities */
+@layer utilities {
+  /* Museum Colors */
+  .bg-porcelain {
+    background-color: #F9F7F2;
+  }
+  .text-espresso {
+    color: #2D241E;
+  }
+  .text-taupe {
+    color: #8C857E;
+  }
+  .text-botanical {
+    color: #4A5D4E;
+  }
+  .bg-botanical {
+    background-color: #4A5D4E;
+  }
+  .border-museum {
+    border-color: #EAE7DE;
+  }
+  .text-museum-gold {
+    color: #D4AF37;
+  }
+  .bg-museum-gold {
+    background-color: #D4AF37;
+  }
+
+  /* Museum Typography */
+  .font-museum-title {
+    font-family: Georgia, Cambria, 'Times New Roman', Times, serif;
+    font-weight: 300;
+  }
+  .font-museum-label {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+  }
+  .tracking-museum {
+    letter-spacing: 0.3em;
+  }
+
+  /* Museum Card Styles */
+  .card-museum {
+    border-radius: 2.5rem;
+    border: 1px solid #EAE7DE;
+    background-color: #F9F7F2;
+    box-shadow: 0 4px 20px rgba(45, 36, 30, 0.08);
+  }
+  .card-museum:hover {
+    box-shadow: 0 8px 30px rgba(45, 36, 30, 0.12);
+  }
+
+  /* Museum Interactions */
+  .museum-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .museum-scale-hover:hover {
+    transform: scale(1.02);
+  }
+  .grayscale-hover {
+    filter: grayscale(100%);
+    transition: filter 0.3s ease;
+  }
+  .grayscale-hover:hover {
+    filter: grayscale(0%);
+  }
+
+  /* Gold Accent Line */
+  .gold-line {
+    background: linear-gradient(90deg, transparent, #D4AF37, transparent);
+    height: 1px;
+    opacity: 0.4;
+  }
+  .gold-line-vertical {
+    background: linear-gradient(180deg, transparent, #D4AF37, transparent);
+    width: 1px;
+    opacity: 0.4;
+  }
+
+  /* Legacy AJU E&J utilities (kept for compatibility) */
+  .bg-navy {
+    background-color: #001F3F;
+  }
+  .bg-navy-light {
+    background-color: #002F5F;
+  }
+  .bg-gold {
+    background-color: #D4AF37;
+  }
+  .bg-sky-blue {
+    background-color: #87CEEB;
+  }
+  .text-navy {
+    color: #001F3F;
+  }
+  .text-gold {
+    color: #D4AF37;
+  }
+  .text-sky-blue {
+    color: #87CEEB;
+  }
+  .border-navy {
+    border-color: #001F3F;
+  }
+  .border-navy-light {
+    border-color: #002F5F;
+  }
+  .border-gold {
+    border-color: #D4AF37;
+  }
+  .border-sky-blue {
+    border-color: #87CEEB;
+  }
+}
