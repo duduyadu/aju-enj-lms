@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { getNotifications, getUnreadCount, markAsRead, markAllAsRead } from '@/services/notificationService';
 import { Notification } from '@/types';
 import { Bell, CheckCircle, Clock, AlertCircle, X, Check, BookOpen } from 'lucide-react';
@@ -9,6 +10,7 @@ import { useRouter } from 'next/navigation';
 
 export default function NotificationBell() {
   const { userData } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -123,10 +125,10 @@ export default function NotificationBell() {
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
 
-    if (minutes < 1) return 'Vừa xong / 방금 전';
-    if (minutes < 60) return `${minutes} phút / ${minutes}분 전`;
-    if (hours < 24) return `${hours} giờ / ${hours}시간 전`;
-    if (days < 7) return `${days} ngày / ${days}일 전`;
+    if (minutes < 1) return t('notification.justNow');
+    if (minutes < 60) return t('notification.minutesAgo').replace('{n}', String(minutes));
+    if (hours < 24) return t('notification.hoursAgo').replace('{n}', String(hours));
+    if (days < 7) return t('notification.daysAgo').replace('{n}', String(days));
     return date.toLocaleDateString('ko-KR');
   };
 
@@ -154,7 +156,7 @@ export default function NotificationBell() {
           {/* 헤더 */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-[#E5E1D8] bg-[#F5F3ED]">
             <h3 className="font-semibold text-[#2D241E]">
-              Thông báo <span className="text-[#8C857E] font-normal">/ 알림</span>
+              {t('notification.title')}
             </h3>
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
@@ -163,7 +165,7 @@ export default function NotificationBell() {
                   className="text-xs text-[#4A5D4E] hover:text-[#3a4a3e] flex items-center gap-1"
                 >
                   <Check className="w-3 h-3" />
-                  Đánh dấu đã đọc / 모두 읽음
+                  {t('notification.markAllRead')}
                 </button>
               )}
               <button
@@ -180,13 +182,12 @@ export default function NotificationBell() {
             {loading ? (
               <div className="p-8 text-center text-[#8C857E]">
                 <div className="w-6 h-6 border-2 border-[#4A5D4E] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                Đang tải... / 로딩 중...
+                {t('notification.loading')}
               </div>
             ) : notifications.length === 0 ? (
               <div className="p-8 text-center text-[#8C857E]">
                 <Bell className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p>Không có thông báo</p>
-                <p className="text-xs">알림이 없습니다</p>
+                <p>{t('notification.noNotifications')}</p>
               </div>
             ) : (
               notifications.map((notification) => (
@@ -227,9 +228,7 @@ export default function NotificationBell() {
           {notifications.length > 0 && (
             <div className="px-4 py-2 border-t border-[#E5E1D8] bg-[#F5F3ED]">
               <p className="text-xs text-[#8C857E] text-center">
-                Hiển thị {notifications.length} thông báo gần đây nhất
-                <br />
-                최근 {notifications.length}개 알림 표시 중
+                {t('notification.showingRecent').replace('{n}', String(notifications.length))}
               </p>
             </div>
           )}

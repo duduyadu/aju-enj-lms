@@ -50,7 +50,8 @@ export interface Order {
 
   // 배송 추적 정보 (관리자가 입력)
   trackingNumber?: string;    // 운송장 번호
-  trackingCarrier?: TrackingCarrier; // 택배사
+  trackingCarrier?: TrackingCarrier; // 택배사 (정의된 타입)
+  carrier?: string;           // 택배사명 (자유 입력)
   deliveryStatus?: DeliveryStatus;   // 배송 상태
   shippedAt?: Date;           // 발송일
   deliveredAt?: Date;         // 배송완료일

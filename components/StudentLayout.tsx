@@ -3,7 +3,7 @@
 import type { ReactNode } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BookOpen, LayoutDashboard, TrendingUp, User, LogOut } from "lucide-react"
+import { BookOpen, LayoutDashboard, TrendingUp, ShoppingBag, User, LogOut } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { useLanguage } from "@/contexts/LanguageContext"
 import { signOut } from "firebase/auth"
@@ -34,6 +34,7 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
   const navigation = [
     { name: t('nav.dashboard'), href: "/dashboard", icon: LayoutDashboard },
     { name: t('nav.myProgress'), href: "/my-progress", icon: TrendingUp },
+    { name: t('nav.myOrders'), href: "/my-orders", icon: ShoppingBag },
   ]
 
   return (

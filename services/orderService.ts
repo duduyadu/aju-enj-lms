@@ -305,3 +305,72 @@ export function checkSubscriptionStatus(subscription: CourseSubscription): Cours
 
   return subscription;
 }
+
+// 배송 상태 업데이트 (관리자 전용)
+export async function updateDeliveryStatus(
+  orderId: string,
+  deliveryStatus: 'PREPARING' | 'SHIPPED' | 'DELIVERED'
+): Promise<void> {
+  try {
+    const updateData: Record<string, any> = {
+      deliveryStatus,
+      updatedAt: serverTimestamp(),
+    };
+
+    // 배송 완료 시 완료 시간 기록
+    if (deliveryStatus === 'DELIVERED') {
+      updateData.deliveredAt = serverTimestamp();
+    }
+
+    await updateDoc(doc(db, 'orders', orderId), updateData);
+  } catch (error) {
+    console.error('Error updating delivery status:', error);
+    throw new Error('배송 상태 업데이트에 실패했습니다.');
+  }
+}
+
+// 운송장 번호 업데이트 (관리자 전용)
+export async function updateTrackingNumber(
+  orderId: string,
+  trackingNumber: string,
+  carrier?: string
+): Promise<void> {
+  try {
+    await updateDoc(doc(db, 'orders', orderId), {
+      trackingNumber,
+      carrier: carrier || '',
+      deliveryStatus: 'SHIPPED', // 운송장 입력 시 자동으로 배송 중으로 변경
+      shippedAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error('Error updating tracking number:', error);
+    throw new Error('운송장 번호 업데이트에 실패했습니다.');
+  }
+}
+
+// 주문 상세 조회
+export async function getOrderById(orderId: string): Promise<Order | null> {
+  try {
+    const orderDoc = await getDoc(doc(db, 'orders', orderId));
+
+    if (!orderDoc.exists()) {
+      return null;
+    }
+
+    const data = orderDoc.data();
+    return {
+      ...data,
+      id: orderDoc.id,
+      createdAt: data.createdAt?.toDate(),
+      paidAt: data.paidAt?.toDate(),
+      cancelledAt: data.cancelledAt?.toDate(),
+      depositConfirmedAt: data.depositConfirmedAt?.toDate(),
+      shippedAt: data.shippedAt?.toDate(),
+      deliveredAt: data.deliveredAt?.toDate(),
+    } as Order;
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    throw new Error('주문 정보를 불러오는데 실패했습니다.');
+  }
+}
