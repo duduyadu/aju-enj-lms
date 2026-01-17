@@ -4,8 +4,28 @@ import { useState, useEffect } from 'react';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Chapter, Course, Question } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
+import {
+  Video,
+  Plus,
+  Edit3,
+  Trash2,
+  X,
+  Type,
+  Link as LinkIcon,
+  Hash,
+  Clock,
+  Save,
+  HelpCircle,
+  CheckCircle,
+  ChevronDown,
+  ChevronUp,
+  BookOpen,
+  Filter
+} from 'lucide-react';
 
 export default function ChapterManagement() {
+  const { t } = useLanguage();
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(false);
@@ -105,7 +125,7 @@ export default function ChapterManagement() {
           ...chapterData,
           updatedAt: serverTimestamp()
         });
-        alert('챕터가 수정되었습니다.');
+        alert(t('chapters.updated'));
       } else {
         // 추가
         await addDoc(collection(db, 'chapters'), {
@@ -113,7 +133,7 @@ export default function ChapterManagement() {
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp()
         });
-        alert('새 챕터가 추가되었습니다.');
+        alert(t('chapters.added'));
       }
 
       // 폼 초기화
@@ -132,7 +152,7 @@ export default function ChapterManagement() {
       fetchChapters();
     } catch (error) {
       console.error('Error saving chapter:', error);
-      alert('저장 중 오류가 발생했습니다.');
+      alert(t('chapters.saveFailed'));
     } finally {
       setLoading(false);
     }
@@ -153,17 +173,17 @@ export default function ChapterManagement() {
   };
 
   const handleDelete = async (chapterId: string) => {
-    if (!confirm('정말로 이 챕터를 삭제하시겠습니까?')) {
+    if (!confirm(t('chapters.confirmDelete'))) {
       return;
     }
 
     try {
       await deleteDoc(doc(db, 'chapters', chapterId));
-      alert('챕터가 삭제되었습니다.');
+      alert(t('chapters.deleted'));
       fetchChapters();
     } catch (error) {
       console.error('Error deleting chapter:', error);
-      alert('삭제 중 오류가 발생했습니다.');
+      alert(t('chapters.deleteFailed'));
     }
   };
 
@@ -172,16 +192,24 @@ export default function ChapterManagement() {
     : chapters;
 
   return (
-    <div>
-      <div className="mb-6 flex justify-between items-center">
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">챕터 관리</h1>
-          <p className="text-gray-600 mt-1">강의 영상과 퀴즈를 관리합니다</p>
+          <span className="text-[10px] uppercase tracking-[0.3em] text-museum-gold">
+            Chapter Management
+          </span>
+          <h1 className="font-serif font-light text-3xl text-espresso mt-1">
+            {t('chapters.title')}
+          </h1>
+          <p className="text-taupe text-sm mt-2">
+            {t('chapters.description')}
+          </p>
         </div>
         <button
           onClick={() => {
             if (courses.length === 0) {
-              alert('먼저 코스를 생성해주세요.');
+              alert(t('chapters.createCourseFirst'));
               return;
             }
             setShowForm(true);
@@ -196,41 +224,70 @@ export default function ChapterManagement() {
             });
             setQuestions([]);
           }}
-          className="px-4 py-2 bg-aju-navy text-white rounded-lg hover:bg-opacity-90 transition"
+          className="inline-flex items-center gap-2 px-5 py-3 bg-botanical text-porcelain rounded-full text-[11px] uppercase tracking-[0.15em] font-medium hover:scale-[1.02] transition-all duration-300 shadow-museum"
         >
-          + 새 챕터 추가
+          <Plus className="w-4 h-4" />
+          {t('chapters.addNew')}
         </button>
       </div>
 
-      {/* 코스 필터 */}
-      <div className="mb-4">
+      {/* Course Filter */}
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 text-taupe">
+          <Filter className="w-4 h-4" />
+          <span className="text-[10px] uppercase tracking-[0.2em]">{t('chapters.courseFilter')}</span>
+        </div>
         <select
           value={selectedCourse}
           onChange={(e) => setSelectedCourse(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg"
+          className="px-4 py-2.5 bg-white border border-museum-border rounded-full text-sm text-espresso focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all"
         >
-          <option value="">모든 코스</option>
+          <option value="">{t('chapters.allCourses')}</option>
           {courses.map(course => (
             <option key={course.id} value={course.id}>{course.title}</option>
           ))}
         </select>
       </div>
 
-      {/* 챕터 추가/수정 폼 */}
+      {/* Chapter Add/Edit Form */}
       {showForm && (
-        <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-          <h2 className="text-lg font-bold text-gray-800 mb-4">
-            {editingChapter ? '챕터 수정' : '새 챕터 추가'}
-          </h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="bg-white rounded-[2rem] border border-museum-border p-8 shadow-museum">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-museum-gold/20 flex items-center justify-center">
+                {editingChapter ? <Edit3 className="w-5 h-5 text-museum-gold" /> : <Plus className="w-5 h-5 text-museum-gold" />}
+              </div>
+              <div>
+                <h2 className="font-serif font-light text-xl text-espresso">
+                  {editingChapter ? t('chapters.editChapter') : t('chapters.addNew')}
+                </h2>
+                <span className="text-[9px] uppercase tracking-[0.2em] text-taupe">
+                  {editingChapter ? 'Edit Chapter' : 'New Chapter'}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setShowForm(false);
+                setShowQuizForm(false);
+                setEditingChapter(null);
+              }}
+              className="w-8 h-8 rounded-full bg-porcelain flex items-center justify-center hover:bg-museum-border transition-colors"
+            >
+              <X className="w-4 h-4 text-taupe" />
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                코스 선택 <span className="text-red-500">*</span>
+              <label className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-taupe mb-2">
+                <BookOpen className="w-3.5 h-3.5" />
+                {t('chapters.selectCourse')} <span className="text-red-400">*</span>
               </label>
               <select
                 value={formData.courseId}
                 onChange={(e) => setFormData({ ...formData, courseId: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-5 py-4 bg-porcelain border border-museum-border rounded-2xl text-espresso focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all"
                 required
               >
                 {courses.map(course => (
@@ -240,89 +297,112 @@ export default function ChapterManagement() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                챕터 제목 <span className="text-red-500">*</span>
+              <label className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-taupe mb-2">
+                <Type className="w-3.5 h-3.5" />
+                {t('chapters.chapterTitle')} <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                placeholder="예: 1강. 한국어 인사말"
+                className="w-full px-5 py-4 bg-porcelain border border-museum-border rounded-2xl text-espresso placeholder:text-taupe/50 focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all"
+                placeholder={t('chapters.titlePlaceholder')}
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                유튜브 URL <span className="text-red-500">*</span>
+              <label className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-taupe mb-2">
+                <LinkIcon className="w-3.5 h-3.5" />
+                {t('chapters.youtubeUrl')} <span className="text-red-400">*</span>
               </label>
               <input
                 type="url"
                 value={formData.videoUrl}
                 onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-5 py-4 bg-porcelain border border-museum-border rounded-2xl text-espresso placeholder:text-taupe/50 focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all"
                 placeholder="https://www.youtube.com/watch?v=..."
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">
-                유튜브 동영상 링크를 그대로 붙여넣으세요
+              <p className="text-[11px] text-taupe mt-2 ml-1">
+                {t('chapters.youtubeHelp')}
               </p>
             </div>
 
-            <div className="flex space-x-4">
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  정렬 순서
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-taupe mb-2">
+                  <Hash className="w-3.5 h-3.5" />
+                  {t('chapters.sortOrder')}
                 </label>
                 <input
                   type="number"
                   value={formData.order}
                   onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-5 py-4 bg-porcelain border border-museum-border rounded-2xl text-espresso focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all"
                   min="1"
                   required
                 />
               </div>
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  영상 길이 (분)
+              <div>
+                <label className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-taupe mb-2">
+                  <Clock className="w-3.5 h-3.5" />
+                  {t('chapters.videoDuration')}
                 </label>
                 <input
                   type="number"
                   value={formData.duration}
                   onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-5 py-4 bg-porcelain border border-museum-border rounded-2xl text-espresso focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all"
                   min="0"
                 />
               </div>
             </div>
 
             {/* 퀴즈 섹션 */}
-            <div className="border-t pt-4">
-              <div className="flex justify-between items-center mb-3">
-                <h3 className="font-semibold text-gray-800">퀴즈 설정 (선택사항)</h3>
-                <button
-                  type="button"
-                  onClick={() => setShowQuizForm(!showQuizForm)}
-                  className="text-sm text-blue-600 hover:text-blue-800"
-                >
-                  {showQuizForm ? '퀴즈 숨기기' : '퀴즈 추가'}
-                </button>
-              </div>
+            <div className="border-t border-museum-border pt-6">
+              <button
+                type="button"
+                onClick={() => setShowQuizForm(!showQuizForm)}
+                className="flex items-center justify-between w-full"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-botanical/10 flex items-center justify-center">
+                    <HelpCircle className="w-4 h-4 text-botanical" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-medium text-espresso">{t('chapters.quizSettings')}</h3>
+                    <span className="text-[10px] uppercase tracking-[0.15em] text-taupe">{t('chapters.optional')}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {questions.length > 0 && (
+                    <span className="px-2.5 py-1 text-[10px] font-medium text-botanical bg-botanical/10 rounded-full">
+                      {questions.length}{t('chapters.questions')}
+                    </span>
+                  )}
+                  {showQuizForm ? (
+                    <ChevronUp className="w-5 h-5 text-taupe" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-taupe" />
+                  )}
+                </div>
+              </button>
 
               {showQuizForm && (
-                <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+                <div className="mt-6 space-y-4 bg-porcelain p-6 rounded-2xl">
                   {questions.map((question, qIndex) => (
-                    <div key={question.id} className="bg-white p-4 rounded-lg border">
-                      <div className="flex justify-between mb-3">
-                        <h4 className="font-medium">문제 {qIndex + 1}</h4>
+                    <div key={question.id} className="bg-white p-5 rounded-xl border border-museum-border">
+                      <div className="flex justify-between items-center mb-4">
+                        <span className="text-[10px] uppercase tracking-[0.2em] text-taupe font-medium">
+                          {t('chapters.question')} {qIndex + 1}
+                        </span>
                         <button
                           type="button"
                           onClick={() => handleRemoveQuestion(qIndex)}
-                          className="text-red-600 hover:text-red-800 text-sm"
+                          className="text-red-500 hover:text-red-700 text-[11px] uppercase tracking-[0.1em] font-medium"
                         >
-                          삭제
+                          {t('common.delete')}
                         </button>
                       </div>
 
@@ -330,18 +410,19 @@ export default function ChapterManagement() {
                         type="text"
                         value={question.text}
                         onChange={(e) => handleQuestionChange(qIndex, 'text', e.target.value)}
-                        className="w-full px-3 py-2 border rounded-lg mb-3"
-                        placeholder="문제를 입력하세요"
+                        className="w-full px-4 py-3 bg-porcelain border border-museum-border rounded-xl text-espresso placeholder:text-taupe/50 focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all mb-4"
+                        placeholder={t('chapters.questionPlaceholder')}
                       />
 
-                      <div className="space-y-2 mb-3">
+                      <div className="space-y-2 mb-4">
                         {question.options.map((option, oIndex) => (
-                          <div key={oIndex} className="flex items-center space-x-2">
+                          <div key={oIndex} className="flex items-center gap-3">
                             <input
                               type="radio"
                               name={`correct-${qIndex}`}
                               checked={question.correctAnswer === oIndex}
                               onChange={() => handleQuestionChange(qIndex, 'correctAnswer', oIndex)}
+                              className="w-4 h-4 text-botanical focus:ring-botanical"
                             />
                             <input
                               type="text"
@@ -351,8 +432,8 @@ export default function ChapterManagement() {
                                 newOptions[oIndex] = e.target.value;
                                 handleQuestionChange(qIndex, 'options', newOptions);
                               }}
-                              className="flex-1 px-3 py-1 border rounded"
-                              placeholder={`선택지 ${oIndex + 1}`}
+                              className="flex-1 px-4 py-2.5 bg-white border border-museum-border rounded-xl text-espresso placeholder:text-taupe/50 focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all"
+                              placeholder={`${t('chapters.option')} ${oIndex + 1}`}
                             />
                           </div>
                         ))}
@@ -361,9 +442,9 @@ export default function ChapterManagement() {
                       <textarea
                         value={question.explanation || ''}
                         onChange={(e) => handleQuestionChange(qIndex, 'explanation', e.target.value)}
-                        className="w-full px-3 py-2 border rounded-lg"
+                        className="w-full px-4 py-3 bg-porcelain border border-museum-border rounded-xl text-espresso placeholder:text-taupe/50 focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all resize-none"
                         rows={2}
-                        placeholder="정답 해설 (한국어/베트남어 모두 가능)"
+                        placeholder={t('chapters.explanationPlaceholder')}
                       />
                     </div>
                   ))}
@@ -371,21 +452,23 @@ export default function ChapterManagement() {
                   <button
                     type="button"
                     onClick={handleAddQuestion}
-                    className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-gray-400"
+                    className="w-full py-4 border-2 border-dashed border-museum-border rounded-xl text-taupe hover:border-botanical hover:text-botanical transition-colors flex items-center justify-center gap-2"
                   >
-                    + 문제 추가
+                    <Plus className="w-4 h-4" />
+                    <span className="text-[11px] uppercase tracking-[0.15em] font-medium">{t('chapters.addQuestion')}</span>
                   </button>
                 </div>
               )}
             </div>
 
-            <div className="flex space-x-3">
+            <div className="flex gap-3 pt-4">
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 bg-aju-navy text-white rounded-lg hover:bg-opacity-90 transition disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-botanical text-porcelain rounded-full text-[11px] uppercase tracking-[0.15em] font-medium hover:scale-[1.02] transition-all duration-300 shadow-museum disabled:opacity-50 disabled:hover:scale-100"
               >
-                {loading ? '저장 중...' : editingChapter ? '수정하기' : '추가하기'}
+                <Save className="w-4 h-4" />
+                {loading ? t('common.saving') : editingChapter ? t('common.edit') : t('chapters.add')}
               </button>
               <button
                 type="button"
@@ -394,98 +477,134 @@ export default function ChapterManagement() {
                   setShowQuizForm(false);
                   setEditingChapter(null);
                 }}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                className="px-6 py-3 bg-porcelain text-taupe rounded-full text-[11px] uppercase tracking-[0.15em] font-medium border border-museum-border hover:bg-museum-border transition-all"
               >
-                취소
+                {t('common.cancel')}
               </button>
             </div>
           </form>
         </div>
       )}
 
-      {/* 챕터 목록 */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">순서</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">챕터 정보</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">코스</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">퀴즈</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">작업</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {loading ? (
+      {/* Chapter List */}
+      <div className="bg-white rounded-[2rem] border border-museum-border shadow-museum overflow-hidden">
+        <div className="px-6 py-4 bg-porcelain border-b border-museum-border flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-botanical/10 flex items-center justify-center">
+            <Video className="w-4 h-4 text-botanical" />
+          </div>
+          <div>
+            <span className="text-[9px] uppercase tracking-[0.2em] text-taupe">Total</span>
+            <span className="ml-2 font-serif font-light text-lg text-espresso">{filteredChapters.length}{t('chapters.chaptersCount')}</span>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-porcelain/50 border-b border-museum-border">
               <tr>
-                <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                  로딩 중...
-                </td>
+                <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">{t('chapters.order')}</th>
+                <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">{t('chapters.chapterInfo')}</th>
+                <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">{t('chapters.course')}</th>
+                <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">{t('chapters.quiz')}</th>
+                <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">{t('chapters.actions')}</th>
               </tr>
-            ) : filteredChapters.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                  등록된 챕터가 없습니다
-                </td>
-              </tr>
-            ) : (
-              filteredChapters.map((chapter) => {
-                const course = courses.find(c => c.id === chapter.courseId);
-                return (
-                  <tr key={chapter.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-900">{chapter.order}</td>
-                    <td className="px-6 py-4">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{chapter.title}</div>
-                        <div className="text-sm text-gray-500">
-                          {chapter.duration ? `${chapter.duration}분` : '시간 미설정'}
+            </thead>
+            <tbody className="divide-y divide-museum-border">
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-8 h-8 rounded-full border-2 border-botanical border-t-transparent animate-spin" />
+                      <span className="text-[11px] uppercase tracking-[0.2em] text-taupe">Loading...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredChapters.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-porcelain flex items-center justify-center">
+                        <Video className="w-6 h-6 text-taupe" />
+                      </div>
+                      <span className="text-sm text-taupe">{t('chapters.noChapters')}</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredChapters.map((chapter) => {
+                  const course = courses.find(c => c.id === chapter.courseId);
+                  return (
+                    <tr key={chapter.id} className="hover:bg-porcelain/50 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="w-10 h-10 rounded-full bg-museum-gold/10 flex items-center justify-center">
+                          <span className="font-serif font-light text-lg text-espresso">{chapter.order}</span>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {course?.title || '코스 없음'}
-                    </td>
-                    <td className="px-6 py-4">
-                      {chapter.quiz ? (
-                        <span className="px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">
-                          {chapter.quiz.questions.length}문제
+                      </td>
+                      <td className="px-6 py-4">
+                        <div>
+                          <div className="font-medium text-espresso mb-1">{chapter.title}</div>
+                          <div className="flex items-center gap-2 text-[11px] text-taupe">
+                            <Clock className="w-3.5 h-3.5" />
+                            {chapter.duration ? `${chapter.duration}${t('chapters.minutes')}` : t('chapters.noTime')}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium text-espresso bg-porcelain rounded-full border border-museum-border">
+                          <BookOpen className="w-3.5 h-3.5" />
+                          {course?.title || t('chapters.noCourse')}
                         </span>
-                      ) : (
-                        <span className="text-sm text-gray-400">없음</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleEdit(chapter)}
-                          className="text-blue-600 hover:text-blue-900 text-sm font-medium"
-                        >
-                          수정
-                        </button>
-                        <button
-                          onClick={() => handleDelete(chapter.id)}
-                          className="text-red-600 hover:text-red-900 text-sm font-medium"
-                        >
-                          삭제
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                      </td>
+                      <td className="px-6 py-4">
+                        {chapter.quiz ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.1em] text-botanical bg-botanical/10 rounded-full border border-botanical/20">
+                            <CheckCircle className="w-3.5 h-3.5" />
+                            {chapter.quiz.questions.length}{t('chapters.questions')}
+                          </span>
+                        ) : (
+                          <span className="text-[11px] text-taupe">{t('chapters.none')}</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleEdit(chapter)}
+                            className="inline-flex items-center gap-1.5 px-3 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-botanical bg-botanical/10 rounded-full hover:bg-botanical/20 transition-colors"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                            {t('common.edit')}
+                          </button>
+                          <button
+                            onClick={() => handleDelete(chapter.id)}
+                            className="inline-flex items-center gap-1.5 px-3 py-2 text-[10px] font-medium uppercase tracking-[0.1em] text-red-500 bg-red-50 rounded-full hover:bg-red-100 transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            {t('common.delete')}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* 도움말 */}
-      <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-        <h3 className="font-semibold text-blue-900 mb-2">💡 사용 가이드</h3>
-        <ul className="text-sm text-blue-800 space-y-1">
-          <li>• 유튜브 링크는 브라우저 주소창에서 그대로 복사해서 붙여넣으세요</li>
-          <li>• 퀴즈는 선택사항이며, 자동 채점됩니다</li>
-          <li>• 정답 해설은 한국어와 베트남어 모두 입력 가능합니다</li>
-          <li>• 챕터 순서는 숫자로 관리되며, 학생에게는 순서대로 표시됩니다</li>
+      <div className="bg-botanical/5 rounded-2xl border border-botanical/20 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-8 h-8 rounded-full bg-botanical/20 flex items-center justify-center">
+            <HelpCircle className="w-4 h-4 text-botanical" />
+          </div>
+          <h3 className="font-medium text-espresso">{t('chapters.helpGuide')}</h3>
+        </div>
+        <ul className="text-sm text-taupe space-y-2 ml-11">
+          <li>• {t('chapters.helpTip1')}</li>
+          <li>• {t('chapters.helpTip2')}</li>
+          <li>• {t('chapters.helpTip3')}</li>
+          <li>• {t('chapters.helpTip4')}</li>
         </ul>
       </div>
     </div>

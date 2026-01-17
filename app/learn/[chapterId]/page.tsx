@@ -1,32 +1,77 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { doc, getDoc, addDoc, collection, serverTimestamp, updateDoc, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Chapter, Course, Submission, Progress } from '@/types';
+import { Chapter, Course, Submission, Progress, User } from '@/types';
 import {
   BookOpen,
   ArrowLeft,
-  User,
+  User as UserIcon,
   LogOut,
   CheckCircle2,
   XCircle,
   PlayCircle,
   GraduationCap,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  Clock,
+  Play,
+  Pause
 } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import LanguageToggle from '@/components/LanguageToggle';
+
+// 코스별 접근 권한 확인 함수
+function hasCourseAccess(userData: User | null, courseId: string): boolean {
+  if (!userData) return false;
+
+  const subscription = userData.courseSubscriptions?.[courseId];
+  if (subscription?.approved) {
+    if (!subscription.endDate) return true;
+    const endDate = subscription.endDate instanceof Date
+      ? subscription.endDate
+      : new Date(subscription.endDate as any);
+    if (endDate > new Date()) return true;
+  }
+
+  if (userData.isPaid && !userData.courseSubscriptions) {
+    if (!userData.subscriptionEndDate) return true;
+    const endDate = userData.subscriptionEndDate instanceof Date
+      ? userData.subscriptionEndDate
+      : new Date(userData.subscriptionEndDate as any);
+    return endDate > new Date();
+  }
+
+  return false;
+}
+
+// 시간 포맷팅 함수
+function formatTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// YouTube IFrame API 타입 선언
+declare global {
+  interface Window {
+    YT: any;
+    onYouTubeIframeAPIReady: () => void;
+  }
+}
 
 export default function LearnPage() {
   const router = useRouter();
   const params = useParams();
   const chapterId = params.chapterId as string;
-  const { userData, loading: authLoading } = useAuth();
+  const { userData, loading: authLoading, checkSessionValid } = useAuth();
+  const { t } = useLanguage();
 
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [course, setCourse] = useState<Course | null>(null);
@@ -35,24 +80,205 @@ export default function LearnPage() {
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState<number | null>(null);
   const [showResults, setShowResults] = useState(false);
-  const [videoEnded, setVideoEnded] = useState(false);
+
+  // 비디오 진행률 관련 상태
+  const [watchedDuration, setWatchedDuration] = useState(0);
+  const [totalDuration, setTotalDuration] = useState(0);
+  const [watchedPercent, setWatchedPercent] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progressDocId, setProgressDocId] = useState<string | null>(null);
+
+  // YouTube 플레이어 ref
+  const playerRef = useRef<any>(null);
+  const playerContainerRef = useRef<HTMLDivElement>(null);
+  const saveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastSavedTimeRef = useRef<number>(0);
 
   useEffect(() => {
-    if (!authLoading && !userData) {
-      router.push('/login');
-    } else if (userData && !userData.isPaid) {
-      alert('수강 권한이 없습니다. 관리자 승인을 기다려주세요.');
-      router.push('/dashboard');
-    } else if (userData && chapterId) {
-      fetchChapterData();
+    const checkAccessAndLoad = async () => {
+      if (!authLoading && !userData) {
+        router.push('/login');
+        return;
+      }
+
+      if (userData && chapterId) {
+        const isValid = await checkSessionValid();
+        if (!isValid) {
+          router.push('/login');
+          return;
+        }
+
+        try {
+          const chapterDoc = await getDoc(doc(db, 'chapters', chapterId));
+          if (!chapterDoc.exists()) {
+            alert(t('learn.lessonNotFound') || '강의를 찾을 수 없습니다.');
+            router.push('/dashboard');
+            return;
+          }
+
+          const chapterData = { ...chapterDoc.data(), id: chapterDoc.id } as Chapter;
+          const isFirstChapter = chapterData.order === 1;
+
+          if (!isFirstChapter && !hasCourseAccess(userData, chapterData.courseId)) {
+            alert(`${t('payment.needPermission')}\n${t('payment.firstFree')}`);
+            router.push(`/courses/${chapterData.courseId}`);
+            return;
+          }
+
+          fetchChapterData();
+        } catch (error) {
+          console.error('Error checking chapter access:', error);
+          router.push('/dashboard');
+        }
+      }
+    };
+
+    checkAccessAndLoad();
+  }, [userData, authLoading, chapterId, router, checkSessionValid]);
+
+  // YouTube IFrame API 로드
+  useEffect(() => {
+    if (!chapter) return;
+
+    // YouTube API 스크립트 로드
+    if (!window.YT) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+
+      window.onYouTubeIframeAPIReady = initializePlayer;
+    } else {
+      initializePlayer();
     }
-  }, [userData, authLoading, chapterId, router]);
+
+    return () => {
+      if (saveIntervalRef.current) {
+        clearInterval(saveIntervalRef.current);
+      }
+      if (playerRef.current) {
+        playerRef.current.destroy();
+      }
+    };
+  }, [chapter]);
+
+  const initializePlayer = useCallback(() => {
+    if (!chapter || !playerContainerRef.current) return;
+
+    const videoId = extractYouTubeId(chapter.videoUrl);
+    if (!videoId) return;
+
+    playerRef.current = new window.YT.Player(playerContainerRef.current, {
+      videoId: videoId,
+      playerVars: {
+        rel: 0,
+        modestbranding: 1,
+        playsinline: 1,
+      },
+      events: {
+        onReady: onPlayerReady,
+        onStateChange: onPlayerStateChange,
+      },
+    });
+  }, [chapter]);
+
+  const onPlayerReady = (event: any) => {
+    const duration = event.target.getDuration();
+    setTotalDuration(duration);
+
+    // 이전 시청 위치로 이동 (저장된 진행률이 있으면)
+    if (watchedDuration > 0 && watchedDuration < duration) {
+      event.target.seekTo(watchedDuration, true);
+    }
+  };
+
+  const onPlayerStateChange = (event: any) => {
+    if (event.data === window.YT.PlayerState.PLAYING) {
+      setIsPlaying(true);
+      startProgressTracking();
+    } else if (event.data === window.YT.PlayerState.PAUSED) {
+      setIsPlaying(false);
+      stopProgressTracking();
+      saveProgress();
+    } else if (event.data === window.YT.PlayerState.ENDED) {
+      setIsPlaying(false);
+      stopProgressTracking();
+      handleVideoComplete();
+    }
+  };
+
+  const startProgressTracking = () => {
+    if (saveIntervalRef.current) return;
+
+    saveIntervalRef.current = setInterval(() => {
+      if (playerRef.current && playerRef.current.getCurrentTime) {
+        const currentTime = playerRef.current.getCurrentTime();
+        const duration = playerRef.current.getDuration();
+
+        setWatchedDuration(currentTime);
+        setTotalDuration(duration);
+
+        const percent = duration > 0 ? Math.round((currentTime / duration) * 100) : 0;
+        setWatchedPercent(percent);
+
+        // 10초마다 저장 (마지막 저장 시간과 비교)
+        if (currentTime - lastSavedTimeRef.current >= 10) {
+          saveProgress(currentTime, duration, percent);
+          lastSavedTimeRef.current = currentTime;
+        }
+      }
+    }, 1000);
+  };
+
+  const stopProgressTracking = () => {
+    if (saveIntervalRef.current) {
+      clearInterval(saveIntervalRef.current);
+      saveIntervalRef.current = null;
+    }
+  };
+
+  const saveProgress = async (currentTime?: number, duration?: number, percent?: number) => {
+    if (!userData || !chapter || !progressDocId) return;
+
+    const watchTime = currentTime ?? (playerRef.current?.getCurrentTime() || watchedDuration);
+    const totalTime = duration ?? (playerRef.current?.getDuration() || totalDuration);
+    const watchPercent = percent ?? (totalTime > 0 ? Math.round((watchTime / totalTime) * 100) : 0);
+
+    try {
+      await updateDoc(doc(db, 'progress', progressDocId), {
+        watchedDuration: watchTime,
+        totalDuration: totalTime,
+        watchedPercent: watchPercent,
+        lastWatchedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    } catch (error) {
+      console.error('Error saving progress:', error);
+    }
+  };
+
+  const handleVideoComplete = async () => {
+    if (!userData || !chapter || !progressDocId) return;
+
+    try {
+      await updateDoc(doc(db, 'progress', progressDocId), {
+        isCompleted: true,
+        watchedPercent: 100,
+        watchedDuration: totalDuration,
+        lastWatchedAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+      setWatchedPercent(100);
+    } catch (error) {
+      console.error('Error marking video as complete:', error);
+    }
+  };
 
   const fetchChapterData = async () => {
     try {
       const chapterDoc = await getDoc(doc(db, 'chapters', chapterId));
       if (!chapterDoc.exists()) {
-        alert('강의를 찾을 수 없습니다.');
+        alert(t('learn.lessonNotFound') || '강의를 찾을 수 없습니다.');
         router.push('/dashboard');
         return;
       }
@@ -69,7 +295,7 @@ export default function LearnPage() {
         setCourse({ ...courseDoc.data(), id: courseDoc.id } as Course);
       }
 
-      await updateProgress(chapterData);
+      await initializeProgress(chapterData);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -77,7 +303,7 @@ export default function LearnPage() {
     }
   };
 
-  const updateProgress = async (chapterData: Chapter) => {
+  const initializeProgress = async (chapterData: Chapter) => {
     if (!userData) return;
 
     try {
@@ -89,25 +315,34 @@ export default function LearnPage() {
       const snapshot = await getDocs(q);
 
       if (snapshot.empty) {
-        await addDoc(collection(db, 'progress'), {
+        const docRef = await addDoc(collection(db, 'progress'), {
           userId: userData.uid,
           courseId: chapterData.courseId,
           chapterId: chapterId,
           isCompleted: false,
           watchedDuration: 0,
+          totalDuration: 0,
+          watchedPercent: 0,
           lastWatchedAt: serverTimestamp(),
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp()
         });
+        setProgressDocId(docRef.id);
       } else {
         const progressDoc = snapshot.docs[0];
+        const progressData = progressDoc.data();
+        setProgressDocId(progressDoc.id);
+        setWatchedDuration(progressData.watchedDuration || 0);
+        setTotalDuration(progressData.totalDuration || 0);
+        setWatchedPercent(progressData.watchedPercent || 0);
+
         await updateDoc(doc(db, 'progress', progressDoc.id), {
           lastWatchedAt: serverTimestamp(),
           updatedAt: serverTimestamp()
         });
       }
     } catch (error) {
-      console.error('Error updating progress:', error);
+      console.error('Error initializing progress:', error);
     }
   };
 
@@ -126,7 +361,7 @@ export default function LearnPage() {
     if (!chapter?.quiz || !userData) return;
 
     if (answers.includes(-1)) {
-      alert('모든 문제에 답해주세요.');
+      alert(t('learn.answerAll'));
       return;
     }
 
@@ -153,16 +388,8 @@ export default function LearnPage() {
         createdAt: serverTimestamp()
       });
 
-      const q = query(
-        collection(db, 'progress'),
-        where('userId', '==', userData.uid),
-        where('chapterId', '==', chapterId)
-      );
-      const snapshot = await getDocs(q);
-
-      if (!snapshot.empty) {
-        const progressDoc = snapshot.docs[0];
-        await updateDoc(doc(db, 'progress', progressDoc.id), {
+      if (progressDocId) {
+        await updateDoc(doc(db, 'progress', progressDocId), {
           isCompleted: true,
           updatedAt: serverTimestamp()
         });
@@ -186,7 +413,7 @@ export default function LearnPage() {
       <div className="min-h-screen bg-[#F5F3ED] flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 rounded-full border-3 border-[#4A5D4E] border-t-transparent animate-spin mx-auto mb-4" />
-          <p className="text-[#8C857E] text-sm">강의를 불러오는 중...</p>
+          <p className="text-[#8C857E] text-sm">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -195,8 +422,6 @@ export default function LearnPage() {
   if (!chapter || !course) {
     return null;
   }
-
-  const youtubeId = extractYouTubeId(chapter.videoUrl);
 
   return (
     <div className="min-h-screen bg-[#F5F3ED] flex flex-col">
@@ -215,13 +440,15 @@ export default function LearnPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-[#F5F3ED] rounded-lg">
-                <User className="w-4 h-4 text-[#8C857E]" />
-                <span className="text-sm text-[#2D241E] hidden sm:inline">{userData?.name}</span>
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-[#F5F3ED] rounded-lg">
+                <UserIcon className="w-4 h-4 text-[#8C857E]" />
+                <span className="text-sm text-[#2D241E]">{userData?.name}</span>
               </div>
+              <LanguageToggle />
               <button
                 onClick={handleSignOut}
                 className="p-2 text-[#8C857E] hover:text-[#2D241E] hover:bg-[#F5F3ED] rounded-lg transition-all"
+                title={t('common.logout')}
               >
                 <LogOut className="w-5 h-5" />
               </button>
@@ -239,27 +466,62 @@ export default function LearnPage() {
               className="inline-flex items-center gap-2 text-[#8C857E] hover:text-[#4A5D4E] transition-all"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span className="text-sm">대시보드로 돌아가기</span>
+              <span className="text-sm">{t('learn.backToDashboard')}</span>
             </Link>
           </div>
 
           {/* Chapter Title */}
           <div className="mb-6">
-            <p className="text-[10px] uppercase tracking-[0.3em] text-[#D4AF37] mb-2">Lesson</p>
+            <p className="text-[10px] uppercase tracking-[0.3em] text-[#D4AF37] mb-2">{t('learn.lesson')}</p>
             <h2 className="text-2xl sm:text-3xl font-bold text-[#2D241E]">{chapter.title}</h2>
           </div>
 
           {/* Video Player */}
-          <div className="bg-[#2D241E] rounded-2xl overflow-hidden mb-8 shadow-lg">
+          <div className="bg-[#2D241E] rounded-2xl overflow-hidden mb-4 shadow-lg">
             <div className="relative pb-[56.25%] h-0">
-              <iframe
+              <div
+                ref={playerContainerRef}
                 className="absolute top-0 left-0 w-full h-full"
-                src={`https://www.youtube.com/embed/${youtubeId}?rel=0&modestbranding=1`}
-                title={chapter.title}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                onEnded={() => setVideoEnded(true)}
+              />
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="bg-white rounded-xl border border-[#E5E1D8] p-4 mb-8 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  isPlaying ? 'bg-[#4A5D4E]' : 'bg-[#F5F3ED]'
+                }`}>
+                  {isPlaying ? (
+                    <Pause className="w-4 h-4 text-white" />
+                  ) : (
+                    <Play className="w-4 h-4 text-[#8C857E]" />
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-[#2D241E]">
+                    {watchedPercent >= 100 ? '시청 완료!' : '시청 진행률'}
+                  </p>
+                  <p className="text-xs text-[#8C857E]">
+                    {formatTime(watchedDuration)} / {formatTime(totalDuration)} 시청
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold text-[#4A5D4E]">{watchedPercent}%</p>
+                {watchedPercent >= 100 && (
+                  <span className="inline-flex items-center gap-1 text-xs text-[#4A5D4E]">
+                    <CheckCircle2 className="w-3 h-3" />
+                    완료
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="w-full h-3 bg-[#F5F3ED] rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-[#4A5D4E] to-[#6B8F71] rounded-full transition-all duration-500"
+                style={{ width: `${watchedPercent}%` }}
               />
             </div>
           </div>
@@ -274,8 +536,8 @@ export default function LearnPage() {
                     <GraduationCap className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-white">학습 확인 퀴즈</h3>
-                    <p className="text-white/70 text-sm">강의 내용을 잘 이해했는지 확인해보세요</p>
+                    <h3 className="text-lg font-bold text-white">{t('learn.quiz')}</h3>
+                    <p className="text-white/70 text-sm">{t('learn.quizDescription')}</p>
                   </div>
                 </div>
               </div>
@@ -291,7 +553,7 @@ export default function LearnPage() {
                       <div className="mb-4">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#4A5D4E] text-white rounded-full text-xs font-semibold mb-3">
                           <PlayCircle className="w-3.5 h-3.5" />
-                          문제 {qIndex + 1}
+                          {t('learn.question')} {qIndex + 1}
                         </span>
                         <p className="text-lg font-medium text-[#2D241E]">
                           {question.text}
@@ -352,7 +614,7 @@ export default function LearnPage() {
 
                       {showResults && question.explanation && (
                         <div className="mt-4 p-4 bg-[#4A5D4E]/10 rounded-xl border border-[#4A5D4E]/20">
-                          <p className="text-sm font-semibold text-[#4A5D4E] mb-1">해설</p>
+                          <p className="text-sm font-semibold text-[#4A5D4E] mb-1">{t('learn.explanation')}</p>
                           <p className="text-sm text-[#2D241E]">{question.explanation}</p>
                         </div>
                       )}
@@ -367,7 +629,7 @@ export default function LearnPage() {
                       onClick={handleQuizSubmit}
                       className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-[#4A5D4E] text-white rounded-xl font-medium hover:bg-[#3A4D3E] transition-all"
                     >
-                      퀴즈 제출하기
+                      {t('learn.submitQuiz')}
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   ) : (
@@ -376,22 +638,22 @@ export default function LearnPage() {
                         <Sparkles className="w-8 h-8 text-[#D4AF37]" />
                       </div>
                       <h3 className="text-xl font-bold text-white mb-2">
-                        퀴즈 완료!
+                        {t('learn.quizComplete')}
                       </h3>
                       <p className="text-4xl font-bold text-[#D4AF37] mb-4">
-                        {score}점
+                        {score}{t('learn.score')}
                       </p>
                       <p className="text-white/80 mb-6">
-                        {score! >= 80 ? '훌륭합니다! 다음 강의로 진행하세요.' :
-                         score! >= 60 ? '좋습니다! 복습하면 더 좋을 것 같아요.' :
-                         '다시 한번 강의를 시청해보세요.'}
+                        {score! >= 80 ? t('learn.excellent') :
+                         score! >= 60 ? t('learn.good') :
+                         t('learn.tryAgain')}
                       </p>
                       <Link
                         href="/dashboard"
                         className="inline-flex items-center gap-2 px-6 py-3 bg-white text-[#4A5D4E] rounded-xl font-medium hover:bg-[#F5F3ED] transition-all"
                       >
                         <ArrowLeft className="w-4 h-4" />
-                        대시보드로 돌아가기
+                        {t('learn.backToDashboard')}
                       </Link>
                     </div>
                   )}
@@ -407,7 +669,7 @@ export default function LearnPage() {
                 <GraduationCap className="w-4 h-4 text-white" />
               </div>
               <p className="text-[#2D241E] font-medium">
-                AJU E&J와 함께 성장하세요! 모든 학습 기록은 자동 저장됩니다.
+                {t('learn.growWithUs')}
               </p>
             </div>
           </div>
@@ -418,7 +680,7 @@ export default function LearnPage() {
       <footer className="bg-white border-t border-[#E5E1D8] py-6">
         <div className="max-w-5xl mx-auto px-4 text-center">
           <p className="text-[10px] uppercase tracking-[0.2em] text-[#8C857E]">
-            © 2024 AJU E&J. All rights reserved.
+            {t('footer.copyright')}
           </p>
         </div>
       </footer>

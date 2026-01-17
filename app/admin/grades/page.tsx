@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { User, Submission, Chapter, Course } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   BarChart3,
   Users,
@@ -24,6 +25,7 @@ interface GradeData {
 }
 
 export default function GradesPage() {
+  const { t } = useLanguage();
   const [students, setStudents] = useState<User[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [chapters, setChapters] = useState<Chapter[]>([]);
@@ -155,10 +157,10 @@ export default function GradesPage() {
           Grades & Analytics
         </span>
         <h1 className="font-serif font-light text-3xl text-espresso mt-1">
-          성적 조회
+          {t('grades.title')}
         </h1>
         <p className="text-taupe text-sm mt-2">
-          학생별 퀴즈 성적과 통계를 확인합니다
+          {t('grades.description')}
         </p>
       </div>
 
@@ -170,14 +172,14 @@ export default function GradesPage() {
           </div>
           <div className="flex-1">
             <label className="block text-[10px] uppercase tracking-[0.2em] text-taupe mb-2">
-              코스별 필터
+              {t('grades.courseFilter')}
             </label>
             <select
               value={selectedCourse}
               onChange={(e) => setSelectedCourse(e.target.value)}
               className="w-full sm:w-64 px-4 py-3 bg-porcelain border border-museum-border rounded-xl text-espresso focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all"
             >
-              <option value="all">전체 코스</option>
+              <option value="all">{t('grades.allCourses')}</option>
               {courses.map(course => (
                 <option key={course.id} value={course.id}>{course.title}</option>
               ))}
@@ -193,7 +195,7 @@ export default function GradesPage() {
             <div>
               <span className="text-[9px] uppercase tracking-[0.2em] text-taupe">Total Students</span>
               <p className="font-serif font-light text-3xl text-espresso mt-1">{students.length}</p>
-              <p className="text-[11px] text-taupe mt-1">전체 학생</p>
+              <p className="text-[11px] text-taupe mt-1">{t('grades.totalStudents')}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-porcelain flex items-center justify-center">
               <Users className="w-5 h-5 text-espresso" />
@@ -206,7 +208,7 @@ export default function GradesPage() {
             <div>
               <span className="text-[9px] uppercase tracking-[0.2em] text-botanical">Submissions</span>
               <p className="font-serif font-light text-3xl text-espresso mt-1">{submissions.length}</p>
-              <p className="text-[11px] text-taupe mt-1">제출된 퀴즈</p>
+              <p className="text-[11px] text-taupe mt-1">{t('grades.submittedQuizzes')}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-botanical/20 flex items-center justify-center">
               <FileCheck className="w-5 h-5 text-botanical" />
@@ -223,7 +225,7 @@ export default function GradesPage() {
                   ? Math.round(submissions.reduce((acc, s) => acc + s.score, 0) / submissions.length)
                   : 0}
               </p>
-              <p className="text-[11px] text-taupe mt-1">전체 평균</p>
+              <p className="text-[11px] text-taupe mt-1">{t('grades.overallAverage')}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-museum-gold/20 flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-museum-gold" />
@@ -240,7 +242,7 @@ export default function GradesPage() {
                   ? Math.max(...submissions.map(s => s.score))
                   : 0}
               </p>
-              <p className="text-[11px] text-taupe mt-1">최고 점수</p>
+              <p className="text-[11px] text-taupe mt-1">{t('grades.highestScore')}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-museum-gold/10 flex items-center justify-center">
               <Trophy className="w-5 h-5 text-museum-gold" />
@@ -256,7 +258,7 @@ export default function GradesPage() {
             <BarChart3 className="w-4 h-4 text-botanical" />
           </div>
           <div>
-            <h2 className="font-serif font-light text-lg text-espresso">학생별 성적</h2>
+            <h2 className="font-serif font-light text-lg text-espresso">{t('grades.studentGrades')}</h2>
             <span className="text-[9px] uppercase tracking-[0.2em] text-taupe">Student Rankings</span>
           </div>
         </div>
@@ -265,11 +267,11 @@ export default function GradesPage() {
           <table className="w-full">
             <thead className="bg-porcelain/50 border-b border-museum-border">
               <tr>
-                <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">순위</th>
-                <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">학생 정보</th>
-                <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">제출 수</th>
-                <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">평균 점수</th>
-                <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">상태</th>
+                <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">{t('grades.rank')}</th>
+                <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">{t('grades.studentInfo')}</th>
+                <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">{t('grades.submissions')}</th>
+                <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">{t('grades.averageScore')}</th>
+                <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">{t('admin.status')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-museum-border">
@@ -280,7 +282,7 @@ export default function GradesPage() {
                       <div className="w-12 h-12 rounded-full bg-porcelain flex items-center justify-center">
                         <BarChart3 className="w-6 h-6 text-taupe" />
                       </div>
-                      <span className="text-sm text-taupe">데이터가 없습니다</span>
+                      <span className="text-sm text-taupe">{t('grades.noData')}</span>
                     </div>
                   </td>
                 </tr>
@@ -310,7 +312,7 @@ export default function GradesPage() {
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium text-espresso bg-porcelain rounded-full border border-museum-border">
                         <FileCheck className="w-3.5 h-3.5 text-taupe" />
-                        {data.submissions.length}개
+                        {data.submissions.length}{t('grades.submissionsCount')}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -320,24 +322,24 @@ export default function GradesPage() {
                         'text-red-500'
                       }`}>
                         {data.averageScore}
-                        <span className="text-sm text-taupe ml-1">점</span>
+                        <span className="text-sm text-taupe ml-1">{t('grades.points')}</span>
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       {data.averageScore >= 80 ? (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.1em] text-botanical bg-botanical/10 rounded-full border border-botanical/20">
                           <Award className="w-3.5 h-3.5" />
-                          우수
+                          {t('grades.excellent')}
                         </span>
                       ) : data.averageScore >= 60 ? (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.1em] text-museum-gold bg-museum-gold/10 rounded-full border border-museum-gold/20">
                           <Star className="w-3.5 h-3.5" />
-                          보통
+                          {t('grades.average')}
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.1em] text-red-500 bg-red-50 rounded-full border border-red-100">
                           <AlertTriangle className="w-3.5 h-3.5" />
-                          노력 필요
+                          {t('grades.needsWork')}
                         </span>
                       )}
                     </td>
@@ -356,7 +358,7 @@ export default function GradesPage() {
             <BarChart3 className="w-5 h-5 text-museum-gold" />
           </div>
           <div>
-            <h2 className="font-serif font-light text-xl text-espresso">챕터별 퀴즈 정답률</h2>
+            <h2 className="font-serif font-light text-xl text-espresso">{t('grades.chapterQuizStats')}</h2>
             <span className="text-[9px] uppercase tracking-[0.2em] text-taupe">Question Analytics</span>
           </div>
         </div>
@@ -372,7 +374,7 @@ export default function GradesPage() {
                   <ChevronRight className="w-4 h-4 text-botanical" />
                   <h3 className="font-medium text-espresso">{chapter.title}</h3>
                   <span className="text-[10px] text-taupe ml-auto">
-                    {chapterSubmissions.length}명 응시
+                    {chapterSubmissions.length}{t('grades.takers')}
                   </span>
                 </div>
                 <div className="space-y-3">

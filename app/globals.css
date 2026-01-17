@@ -1,222 +1,198 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
 
-@layer base {
-  :root {
-    /* ========================================
-       Museum Editorial Design System
-       Concept: Museum Catalogue / High-end Editorial
-       Atmosphere: Calm, Refined, Warm, Minimal
-       ======================================== */
+@custom-variant dark (&:is(.dark *));
 
-    /* Background - Porcelain */
-    --background: 43 33% 97%; /* #F9F7F2 */
-    --foreground: 24 23% 15%; /* #2D241E Espresso */
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
 
-    /* Card colors - Porcelain base */
-    --card: 43 33% 97%; /* #F9F7F2 */
-    --card-foreground: 24 23% 15%; /* #2D241E */
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
 
-    /* Popover colors */
-    --popover: 0 0% 100%;
-    --popover-foreground: 24 23% 15%;
-
-    /* Primary colors - Botanical Green */
-    --primary: 136 14% 33%; /* #4A5D4E */
-    --primary-foreground: 43 33% 97%;
-
-    /* Secondary colors - Taupe */
-    --secondary: 30 6% 53%; /* #8C857E */
-    --secondary-foreground: 43 33% 97%;
-
-    /* Muted colors */
-    --muted: 40 20% 92%; /* #EAE7DE */
-    --muted-foreground: 30 6% 53%; /* #8C857E */
-
-    /* Accent colors - Museum Gold */
-    --accent: 43 60% 52%; /* #D4AF37 */
-    --accent-foreground: 24 23% 15%;
-
-    /* Destructive colors */
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 98%;
-
-    /* Border and input - Subtle micro-embossed */
-    --border: 40 20% 90%; /* #EAE7DE */
-    --input: 40 20% 92%;
-    --ring: 136 14% 33%; /* Botanical Green */
-
-    /* Legacy AJU E&J brand colors (kept for compatibility) */
-    --navy: 210 100% 12%;
-    --navy-light: 210 80% 20%;
-    --gold: 43 60% 52%;
-    --sky-blue: 197 71% 73%;
-
-    /* Chart colors - Museum palette */
-    --chart-1: 43 60% 52%; /* Museum Gold */
-    --chart-2: 136 14% 33%; /* Botanical */
-    --chart-3: 30 6% 53%; /* Taupe */
-    --chart-4: 24 23% 15%; /* Espresso */
-    --chart-5: 40 20% 80%;
-
-    --radius: 0.75rem;
-  }
-
-  .dark {
-    --background: 24 20% 10%;
-    --foreground: 43 33% 95%;
-    --card: 24 18% 14%;
-    --card-foreground: 43 33% 95%;
-    --popover: 24 18% 14%;
-    --popover-foreground: 43 33% 95%;
-    --primary: 136 20% 45%;
-    --primary-foreground: 24 20% 10%;
-    --secondary: 30 10% 35%;
-    --secondary-foreground: 43 33% 95%;
-    --muted: 24 15% 20%;
-    --muted-foreground: 30 10% 60%;
-    --accent: 43 55% 50%;
-    --accent-foreground: 24 20% 10%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 24 15% 22%;
-    --input: 24 15% 22%;
-    --ring: 136 20% 45%;
-  }
+@theme inline {
+  /* optional: --font-sans, --font-serif, --font-mono if they are applied in the layout.tsx */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
 @layer base {
   * {
-    border-color: hsl(var(--border));
-  }
-  body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    @apply border-border outline-ring/50;
   }
 
-  /* Museum Editorial Typography */
-  h1, h2, h3 {
-    font-family: Georgia, Cambria, 'Times New Roman', Times, serif;
+  /* FOUC 방지 후 부드러운 전환 */
+  html {
+    transition: opacity 0.15s ease-in-out;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    background-color: #f9f7f2;
+    color: #2d241e;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: Georgia, Cambria, "Times New Roman", Times, serif;
     font-weight: 300;
-    color: #2D241E;
+    color: #2d241e;
   }
 }
 
-/* Museum Editorial Design System Utilities */
 @layer utilities {
-  /* Museum Colors */
   .bg-porcelain {
-    background-color: #F9F7F2;
+    background-color: #f9f7f2;
+  }
+  .text-porcelain {
+    color: #f9f7f2;
+  }
+  .bg-espresso {
+    background-color: #2d241e;
   }
   .text-espresso {
-    color: #2D241E;
+    color: #2d241e;
   }
   .text-taupe {
-    color: #8C857E;
+    color: #8c857e;
   }
   .text-botanical {
-    color: #4A5D4E;
+    color: #4a5d4e;
   }
   .bg-botanical {
-    background-color: #4A5D4E;
+    background-color: #4a5d4e;
   }
-  .border-museum {
-    border-color: #EAE7DE;
+  .border-museum-border {
+    border-color: #eae7de;
   }
   .text-museum-gold {
-    color: #D4AF37;
+    color: #d4af37;
   }
   .bg-museum-gold {
-    background-color: #D4AF37;
+    background-color: #d4af37;
   }
-
-  /* Museum Typography */
-  .font-museum-title {
-    font-family: Georgia, Cambria, 'Times New Roman', Times, serif;
-    font-weight: 300;
-  }
-  .font-museum-label {
-    font-family: 'Inter', system-ui, sans-serif;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.3em;
-  }
-  .tracking-museum {
-    letter-spacing: 0.3em;
-  }
-
-  /* Museum Card Styles */
-  .card-museum {
-    border-radius: 2.5rem;
-    border: 1px solid #EAE7DE;
-    background-color: #F9F7F2;
+  .shadow-museum {
     box-shadow: 0 4px 20px rgba(45, 36, 30, 0.08);
   }
-  .card-museum:hover {
+  .shadow-museum-hover {
     box-shadow: 0 8px 30px rgba(45, 36, 30, 0.12);
   }
-
-  /* Museum Interactions */
-  .museum-transition {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  .bg-aju-navy {
+    background-color: #001f3f;
   }
-  .museum-scale-hover:hover {
-    transform: scale(1.02);
+  .bg-aju-sky {
+    background-color: #87ceeb;
   }
-  .grayscale-hover {
-    filter: grayscale(100%);
-    transition: filter 0.3s ease;
+  .bg-aju-gold {
+    background-color: #d4af37;
   }
-  .grayscale-hover:hover {
-    filter: grayscale(0%);
+  .text-aju-navy {
+    color: #001f3f;
   }
-
-  /* Gold Accent Line */
-  .gold-line {
-    background: linear-gradient(90deg, transparent, #D4AF37, transparent);
-    height: 1px;
-    opacity: 0.4;
+  .text-aju-sky {
+    color: #87ceeb;
   }
-  .gold-line-vertical {
-    background: linear-gradient(180deg, transparent, #D4AF37, transparent);
-    width: 1px;
-    opacity: 0.4;
-  }
-
-  /* Legacy AJU E&J utilities (kept for compatibility) */
-  .bg-navy {
-    background-color: #001F3F;
-  }
-  .bg-navy-light {
-    background-color: #002F5F;
-  }
-  .bg-gold {
-    background-color: #D4AF37;
-  }
-  .bg-sky-blue {
-    background-color: #87CEEB;
-  }
-  .text-navy {
-    color: #001F3F;
-  }
-  .text-gold {
-    color: #D4AF37;
-  }
-  .text-sky-blue {
-    color: #87CEEB;
-  }
-  .border-navy {
-    border-color: #001F3F;
-  }
-  .border-navy-light {
-    border-color: #002F5F;
-  }
-  .border-gold {
-    border-color: #D4AF37;
-  }
-  .border-sky-blue {
-    border-color: #87CEEB;
+  .text-aju-gold {
+    color: #d4af37;
   }
 }

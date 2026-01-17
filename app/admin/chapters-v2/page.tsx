@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, serverTimestamp, query, where, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Chapter, Course, Question } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function ChapterManagementV2() {
+  const { t } = useLanguage();
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(false);
@@ -79,12 +81,12 @@ export default function ChapterManagementV2() {
 
   const handleSubmit = async () => {
     if (!selectedCourse) {
-      alert('코스를 선택해주세요');
+      alert(t('chaptersV2.selectCourseAlert'));
       return;
     }
 
     if (!formData.title || !formData.videoUrl) {
-      alert('제목과 유튜브 URL은 필수입니다');
+      alert(t('chaptersV2.requiredFieldsAlert'));
       return;
     }
 
@@ -102,14 +104,14 @@ export default function ChapterManagementV2() {
           ...chapterData,
           updatedAt: serverTimestamp()
         });
-        alert('✅ 챕터가 수정되었습니다');
+        alert(t('chaptersV2.chapterUpdated'));
       } else {
         await addDoc(collection(db, 'chapters'), {
           ...chapterData,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp()
         });
-        alert('✅ 새 챕터가 추가되었습니다');
+        alert(t('chaptersV2.chapterAdded'));
       }
 
       // 초기화
@@ -126,22 +128,22 @@ export default function ChapterManagementV2() {
       fetchChapters();
     } catch (error) {
       console.error('Error saving chapter:', error);
-      alert('저장 중 오류가 발생했습니다');
+      alert(t('chaptersV2.saveError'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (chapterId: string) => {
-    if (!confirm('정말로 이 챕터를 삭제하시겠습니까?')) return;
+    if (!confirm(t('chapters.confirmDelete'))) return;
 
     try {
       await deleteDoc(doc(db, 'chapters', chapterId));
-      alert('❌ 챕터가 삭제되었습니다');
+      alert(t('chaptersV2.chapterDeleted'));
       fetchChapters();
     } catch (error) {
       console.error('Error deleting chapter:', error);
-      alert('삭제 중 오류가 발생했습니다');
+      alert(t('chaptersV2.deleteError'));
     }
   };
 
@@ -154,25 +156,25 @@ export default function ChapterManagementV2() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">챕터 관리 (간편 모드)</h1>
-        <p className="text-gray-600 mt-1">코스를 선택하고 챕터를 쉽게 추가/관리하세요</p>
+        <h1 className="text-2xl font-bold text-gray-800">{t('chaptersV2.title')}</h1>
+        <p className="text-gray-600 mt-1">{t('chaptersV2.description')}</p>
       </div>
 
       {/* Step 1: 코스 선택 */}
       <div className="bg-white rounded-xl shadow-md p-6 mb-6">
         <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
           <span className="bg-aju-navy text-white rounded-full w-8 h-8 flex items-center justify-center text-sm mr-3">1</span>
-          코스 선택 (교과서 폴더)
+          {t('chaptersV2.step1Title')}
         </h2>
 
         {courses.length === 0 ? (
           <div className="text-center py-8 bg-gray-50 rounded-lg">
-            <p className="text-gray-500 mb-4">📚 등록된 코스가 없습니다</p>
+            <p className="text-gray-500 mb-4">{t('chaptersV2.noCourses')}</p>
             <a
               href="/admin/courses"
               className="text-blue-600 hover:text-blue-800 font-medium"
             >
-              코스 추가하러 가기 →
+              {t('chaptersV2.goAddCourse')}
             </a>
           </div>
         ) : (
@@ -190,7 +192,7 @@ export default function ChapterManagementV2() {
                 <h3 className="font-semibold text-gray-800">{course.title}</h3>
                 <p className="text-sm text-gray-600 mt-1">{course.description}</p>
                 <div className="mt-2 text-xs text-gray-500">
-                  {chapters.filter(ch => ch.courseId === course.id).length}개 챕터
+                  {chapters.filter(ch => ch.courseId === course.id).length}{t('chaptersV2.chaptersCount')}
                 </div>
               </div>
             ))}
@@ -204,7 +206,7 @@ export default function ChapterManagementV2() {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold text-gray-800 flex items-center">
               <span className="bg-aju-navy text-white rounded-full w-8 h-8 flex items-center justify-center text-sm mr-3">2</span>
-              {selectedCourseData?.title} - 챕터 목록
+              {selectedCourseData?.title} - {t('chaptersV2.chapterList')}
             </h2>
             <button
               onClick={() => {
@@ -216,14 +218,14 @@ export default function ChapterManagementV2() {
               }}
               className="px-4 py-2 bg-aju-navy text-white rounded-lg hover:bg-opacity-90 transition"
             >
-              + 챕터 추가
+              + {t('chaptersV2.addChapter')}
             </button>
           </div>
 
           {filteredChapters.length === 0 ? (
             <div className="text-center py-8 bg-gray-50 rounded-lg">
-              <p className="text-gray-500">아직 챕터가 없습니다</p>
-              <p className="text-sm text-gray-400 mt-2">위의 "챕터 추가" 버튼을 클릭하세요</p>
+              <p className="text-gray-500">{t('chaptersV2.noChaptersYet')}</p>
+              <p className="text-sm text-gray-400 mt-2">{t('chaptersV2.clickAddChapter')}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -237,10 +239,10 @@ export default function ChapterManagementV2() {
                       <div className="flex-1">
                         <h4 className="font-semibold text-gray-800">{chapter.title}</h4>
                         <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
-                          <span>🎥 {chapter.duration || 0}분</span>
+                          <span>🎥 {chapter.duration || 0}{t('chapters.minutes')}</span>
                           {chapter.quiz && (
                             <span className="text-green-600">
-                              📝 퀴즈 {chapter.quiz.questions.length}문제
+                              📝 {t('chaptersV2.quizQuestions').replace('{count}', chapter.quiz.questions.length.toString())}
                             </span>
                           )}
                         </div>
@@ -262,13 +264,13 @@ export default function ChapterManagementV2() {
                         }}
                         className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition"
                       >
-                        수정
+                        {t('common.edit')}
                       </button>
                       <button
                         onClick={() => handleDelete(chapter.id)}
                         className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition"
                       >
-                        삭제
+                        {t('common.delete')}
                       </button>
                     </div>
                   </div>
@@ -284,27 +286,27 @@ export default function ChapterManagementV2() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
             <h3 className="text-xl font-bold text-gray-800 mb-4">
-              {editingChapter ? '챕터 수정' : '새 챕터 추가'}
+              {editingChapter ? t('chaptersV2.editChapter') : t('chaptersV2.addNewChapter')}
             </h3>
 
             <div className="space-y-4">
               {/* 기본 정보 */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  챕터 제목 <span className="text-red-500">*</span>
+                  {t('chaptersV2.chapterTitle')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                  placeholder="예: 1강. 한국어 기초 인사"
+                  placeholder={t('chaptersV2.titlePlaceholder')}
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  유튜브 URL <span className="text-red-500">*</span>
+                  {t('chaptersV2.youtubeUrl')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="url"
@@ -314,14 +316,14 @@ export default function ChapterManagementV2() {
                   placeholder="https://www.youtube.com/watch?v=..."
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  💡 유튜브에서 영상 주소를 복사해서 붙여넣으세요
+                  {t('chaptersV2.youtubeHelp')}
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    순서
+                    {t('chaptersV2.order')}
                   </label>
                   <input
                     type="number"
@@ -333,7 +335,7 @@ export default function ChapterManagementV2() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    영상 길이 (분)
+                    {t('chaptersV2.videoDuration')}
                   </label>
                   <input
                     type="number"
@@ -348,13 +350,13 @@ export default function ChapterManagementV2() {
               {/* 간단한 퀴즈 추가 */}
               <div className="border-t pt-4">
                 <div className="flex justify-between items-center mb-3">
-                  <h4 className="font-semibold text-gray-800">퀴즈 (선택사항)</h4>
+                  <h4 className="font-semibold text-gray-800">{t('chaptersV2.quizOptional')}</h4>
                   <button
                     type="button"
                     onClick={handleAddQuestion}
                     className="text-sm text-blue-600 hover:text-blue-800"
                   >
-                    + 문제 추가
+                    + {t('chaptersV2.addQuestion')}
                   </button>
                 </div>
 
@@ -370,7 +372,7 @@ export default function ChapterManagementV2() {
                           setQuestions(updated);
                         }}
                         className="w-full px-3 py-2 border rounded"
-                        placeholder={`문제 ${qIndex + 1}`}
+                        placeholder={`${t('chaptersV2.question')} ${qIndex + 1}`}
                       />
                     </div>
 
@@ -396,7 +398,7 @@ export default function ChapterManagementV2() {
                               setQuestions(updated);
                             }}
                             className="flex-1 px-3 py-1 border rounded"
-                            placeholder={`선택지 ${oIndex + 1}`}
+                            placeholder={`${t('chaptersV2.option')} ${oIndex + 1}`}
                           />
                         </div>
                       ))}
@@ -408,7 +410,7 @@ export default function ChapterManagementV2() {
                       }}
                       className="mt-3 text-sm text-red-600 hover:text-red-800"
                     >
-                      문제 삭제
+                      {t('chaptersV2.deleteQuestion')}
                     </button>
                   </div>
                 ))}
@@ -432,14 +434,14 @@ export default function ChapterManagementV2() {
                 }}
                 className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
               >
-                취소
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={loading}
                 className="px-4 py-2 bg-aju-navy text-white rounded-lg hover:bg-opacity-90 transition disabled:opacity-50"
               >
-                {loading ? '저장 중...' : editingChapter ? '수정하기' : '추가하기'}
+                {loading ? t('common.saving') : editingChapter ? t('chaptersV2.update') : t('chaptersV2.add')}
               </button>
             </div>
           </div>
@@ -448,12 +450,12 @@ export default function ChapterManagementV2() {
 
       {/* 도움말 */}
       <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-        <h3 className="font-semibold text-blue-900 mb-2">💡 간편 사용법</h3>
+        <h3 className="font-semibold text-blue-900 mb-2">{t('chaptersV2.helpTitle')}</h3>
         <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-          <li>먼저 코스(교과서)를 선택하세요</li>
-          <li>"챕터 추가" 버튼을 클릭하세요</li>
-          <li>제목과 유튜브 링크만 입력하면 됩니다 (퀴즈는 선택)</li>
-          <li>저장하면 바로 학생들이 볼 수 있습니다</li>
+          <li>{t('chaptersV2.helpTip1')}</li>
+          <li>{t('chaptersV2.helpTip2')}</li>
+          <li>{t('chaptersV2.helpTip3')}</li>
+          <li>{t('chaptersV2.helpTip4')}</li>
         </ol>
       </div>
     </div>

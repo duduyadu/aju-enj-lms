@@ -1,3 +1,11 @@
+// 코스별 구독 정보
+export interface CourseSubscription {
+  approved: boolean;          // 승인 여부
+  startDate?: Date;           // 구독 시작일
+  endDate?: Date;             // 구독 만료일
+  months?: number;            // 구독 기간 (개월 수)
+}
+
 // User 타입 정의
 export interface User {
   uid: string;                // Firebase Auth UID
@@ -7,8 +15,19 @@ export interface User {
   location?: string;          // 거주 지역
   level?: 'beginner' | 'intermediate' | 'advanced';  // 학습 수준
   role: 'student' | 'admin'; // 사용자 역할
-  isPaid: boolean;            // 결제 승인 여부 (관리자가 수동으로 변경)
+  isPaid: boolean;            // 결제 승인 여부 (하위 호환성 유지)
   currentSessionId?: string;  // 현재 세션 ID (중복 로그인 방지)
+
+  // 코스별 구독 정보
+  courseSubscriptions?: {
+    [courseId: string]: CourseSubscription;
+  };
+
+  // 전역 구독 관련 필드 (하위 호환성)
+  subscriptionStartDate?: Date;  // 구독 시작일
+  subscriptionEndDate?: Date;    // 구독 만료일
+  subscriptionMonths?: number;   // 구독 기간 (개월 수)
+
   createdAt: Date;            // 가입일
   updatedAt: Date;            // 마지막 수정일
 }
@@ -73,6 +92,8 @@ export interface Progress {
   chapterId: string;          // 챕터 ID
   isCompleted: boolean;       // 완료 여부
   watchedDuration: number;    // 시청 시간 (초)
+  totalDuration: number;      // 영상 전체 길이 (초)
+  watchedPercent: number;     // 시청 진행률 (0-100)
   lastWatchedAt: Date;        // 마지막 시청 시간
   createdAt: Date;            // 최초 시청일
   updatedAt: Date;            // 마지막 수정일

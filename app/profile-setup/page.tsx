@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   BookOpen,
   User,
@@ -16,6 +17,7 @@ import {
 export default function ProfileSetupPage() {
   const router = useRouter();
   const { userData, updateUserProfile, loading: authLoading } = useAuth();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     zaloId: '',
@@ -41,7 +43,7 @@ export default function ProfileSetupPage() {
     setError('');
 
     if (!formData.name) {
-      setError('이름은 필수 입력 항목입니다.');
+      setError(t('profile.nameRequired'));
       return;
     }
 
@@ -82,7 +84,7 @@ export default function ProfileSetupPage() {
       <div className="min-h-screen bg-[#F5F3ED] flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 rounded-full border-3 border-[#4A5D4E] border-t-transparent animate-spin mx-auto mb-4" />
-          <p className="text-[#8C857E] text-sm">로딩 중...</p>
+          <p className="text-[#8C857E] text-sm">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -114,8 +116,8 @@ export default function ProfileSetupPage() {
               <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-4">
                 <Sparkles className="w-8 h-8 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">환영합니다!</h2>
-              <p className="text-white/80 text-sm">학습을 시작하기 전에 프로필을 설정해주세요</p>
+              <h2 className="text-2xl font-bold text-white mb-2">{t('profile.welcome')}</h2>
+              <p className="text-white/80 text-sm">{t('profile.welcomeMessage')}</p>
             </div>
 
             {/* Form */}
@@ -131,7 +133,7 @@ export default function ProfileSetupPage() {
                 <div>
                   <label className="flex items-center gap-2 text-sm font-medium text-[#2D241E] mb-2">
                     <User className="w-4 h-4 text-[#8C857E]" />
-                    여권 성함 <span className="text-[#EF4444]">*</span>
+                    {t('profile.passportName')} <span className="text-[#EF4444]">*</span>
                   </label>
                   <input
                     type="text"
@@ -139,7 +141,7 @@ export default function ProfileSetupPage() {
                     value={formData.name}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 bg-[#F5F3ED] border border-[#E5E1D8] rounded-xl text-[#2D241E] placeholder:text-[#8C857E]/60 focus:outline-none focus:ring-2 focus:ring-[#4A5D4E]/30 focus:border-[#4A5D4E] transition-all"
-                    placeholder="예: NGUYEN VAN A"
+                    placeholder={t('profile.namePlaceholder')}
                     required
                   />
                 </div>
@@ -148,7 +150,7 @@ export default function ProfileSetupPage() {
                 <div>
                   <label className="flex items-center gap-2 text-sm font-medium text-[#2D241E] mb-2">
                     <MessageCircle className="w-4 h-4 text-[#8C857E]" />
-                    Zalo ID <span className="text-[#8C857E] font-normal">(선택)</span>
+                    Zalo ID <span className="text-[#8C857E] font-normal">({t('profile.optional')})</span>
                   </label>
                   <input
                     type="text"
@@ -156,16 +158,16 @@ export default function ProfileSetupPage() {
                     value={formData.zaloId}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 bg-[#F5F3ED] border border-[#E5E1D8] rounded-xl text-[#2D241E] placeholder:text-[#8C857E]/60 focus:outline-none focus:ring-2 focus:ring-[#4A5D4E]/30 focus:border-[#4A5D4E] transition-all"
-                    placeholder="예: zalo123456"
+                    placeholder={t('profile.zaloPlaceholder')}
                   />
-                  <p className="text-xs text-[#8C857E] mt-1.5">학습 관련 공지사항을 받으실 수 있습니다</p>
+                  <p className="text-xs text-[#8C857E] mt-1.5">{t('profile.zaloHelp')}</p>
                 </div>
 
                 {/* Location */}
                 <div>
                   <label className="flex items-center gap-2 text-sm font-medium text-[#2D241E] mb-2">
                     <MapPin className="w-4 h-4 text-[#8C857E]" />
-                    거주 지역
+                    {t('profile.location')}
                   </label>
                   <select
                     name="location"
@@ -173,7 +175,7 @@ export default function ProfileSetupPage() {
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 bg-[#F5F3ED] border border-[#E5E1D8] rounded-xl text-[#2D241E] focus:outline-none focus:ring-2 focus:ring-[#4A5D4E]/30 focus:border-[#4A5D4E] transition-all appearance-none cursor-pointer"
                   >
-                    <option value="">선택하세요</option>
+                    <option value="">{t('profile.selectLevel')}</option>
                     {locations.map(loc => (
                       <option key={loc} value={loc}>{loc}</option>
                     ))}
@@ -184,13 +186,13 @@ export default function ProfileSetupPage() {
                 <div>
                   <label className="flex items-center gap-2 text-sm font-medium text-[#2D241E] mb-2">
                     <GraduationCap className="w-4 h-4 text-[#8C857E]" />
-                    한국어 레벨
+                    {t('profile.level')}
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { value: 'beginner', label: '초급', sub: 'Beginner' },
-                      { value: 'intermediate', label: '중급', sub: 'Intermediate' },
-                      { value: 'advanced', label: '고급', sub: 'Advanced' }
+                      { value: 'beginner', label: t('admin.beginner'), sub: 'Beginner' },
+                      { value: 'intermediate', label: t('admin.intermediate'), sub: 'Intermediate' },
+                      { value: 'advanced', label: t('admin.advanced'), sub: 'Advanced' }
                     ].map(level => (
                       <button
                         key={level.value}
@@ -219,10 +221,10 @@ export default function ProfileSetupPage() {
                     className="w-full flex items-center justify-center gap-2 bg-[#4A5D4E] text-white py-4 rounded-xl font-medium hover:bg-[#3A4D3E] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? (
-                      '저장 중...'
+                      t('profile.saving')
                     ) : (
                       <>
-                        학습 시작하기
+                        {t('profile.startLearning')}
                         <ArrowRight className="w-4 h-4" />
                       </>
                     )}
@@ -234,7 +236,7 @@ export default function ProfileSetupPage() {
                       onClick={() => router.push('/dashboard')}
                       className="w-full py-3 text-[#8C857E] text-sm hover:text-[#2D241E] transition-all"
                     >
-                      건너뛰기
+                      {t('profile.skip')}
                     </button>
                   )}
                 </div>
@@ -245,7 +247,7 @@ export default function ProfileSetupPage() {
           {/* Info */}
           <div className="mt-6 text-center">
             <p className="text-xs text-[#8C857E]">
-              입력하신 정보는 AJU E&J 교육 서비스 제공을 위해서만 사용됩니다
+              {t('profile.privacyNotice')}
             </p>
           </div>
         </div>

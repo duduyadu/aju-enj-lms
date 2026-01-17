@@ -3,14 +3,17 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import StudentLayout from '@/components/StudentLayout';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Progress, Submission, Course, Chapter } from '@/types';
+import { BookOpen, FileText, Target, TrendingUp } from 'lucide-react';
 
 export default function MyProgressPage() {
   const router = useRouter();
   const { userData, loading: authLoading } = useAuth();
+  const { t, language } = useLanguage();
   const [progress, setProgress] = useState<Progress[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
@@ -90,74 +93,82 @@ export default function MyProgressPage() {
     return Math.round(total / courseSubmissions.length);
   };
 
-  if (authLoading || loading) {
+  if (authLoading || loading || !userData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">로딩 중...</div>
+      <div className="min-h-screen bg-[#F5F3ED] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 rounded-full border-3 border-[#4A5D4E] border-t-transparent animate-spin mx-auto mb-4" />
+          <p className="text-[#8C857E] text-sm">{t('common.loading')}</p>
+        </div>
       </div>
     );
-  }
-
-  if (!userData) {
-    return null;
   }
 
   return (
     <StudentLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">내 학습 현황</h1>
+        <h1 className="text-3xl font-serif font-bold text-[#2D241E] mb-8">{t('progress.title')}</h1>
 
         {/* 전체 통계 */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-[#E5E1D8] p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">완료한 강의</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {progress.filter(p => p.isCompleted).length}개
+                <p className="text-sm text-[#8C857E]">{t('progress.completedLessons')}</p>
+                <p className="text-2xl font-bold text-[#2D241E]">
+                  {progress.filter(p => p.isCompleted).length}{t('progress.count')}
                 </p>
               </div>
-              <span className="text-3xl">📚</span>
+              <div className="w-12 h-12 rounded-full bg-[#4A5D4E]/10 flex items-center justify-center">
+                <BookOpen className="w-6 h-6 text-[#4A5D4E]" />
+              </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-[#E5E1D8] p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">제출한 퀴즈</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {submissions.length}개
+                <p className="text-sm text-[#8C857E]">{t('progress.submittedQuizzes')}</p>
+                <p className="text-2xl font-bold text-[#2D241E]">
+                  {submissions.length}{t('progress.count')}
                 </p>
               </div>
-              <span className="text-3xl">✏️</span>
+              <div className="w-12 h-12 rounded-full bg-[#D4AF37]/10 flex items-center justify-center">
+                <FileText className="w-6 h-6 text-[#D4AF37]" />
+              </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-[#E5E1D8] p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">평균 점수</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-[#8C857E]">{t('progress.averageScore')}</p>
+                <p className="text-2xl font-bold text-[#2D241E]">
                   {submissions.length > 0
                     ? Math.round(
                         submissions.reduce((acc, s) => acc + s.score, 0) / submissions.length
                       )
                     : 0}
-                  점
+                  {t('progress.points')}
                 </p>
               </div>
-              <span className="text-3xl">🎯</span>
+              <div className="w-12 h-12 rounded-full bg-[#4A5D4E]/10 flex items-center justify-center">
+                <Target className="w-6 h-6 text-[#4A5D4E]" />
+              </div>
             </div>
           </div>
         </div>
 
         {/* 코스별 진도 */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">코스별 진도</h2>
+        <div className="bg-white rounded-xl shadow-sm border border-[#E5E1D8] p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <TrendingUp className="w-5 h-5 text-[#4A5D4E]" />
+            <h2 className="text-xl font-semibold text-[#2D241E]">{t('progress.progressByCourse')}</h2>
+          </div>
 
           {courses.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">
-              등록된 코스가 없습니다.
+            <p className="text-[#8C857E] text-center py-8">
+              {t('progress.noCourses')}
             </p>
           ) : (
             <div className="space-y-4">
@@ -168,26 +179,26 @@ export default function MyProgressPage() {
                 const avgScore = getAverageScore(course.id);
 
                 return (
-                  <div key={course.id} className="border rounded-lg p-4">
+                  <div key={course.id} className="border border-[#E5E1D8] rounded-lg p-4">
                     <div className="flex justify-between items-start mb-3">
-                      <h3 className="font-semibold text-gray-800">{course.title}</h3>
-                      <span className="text-sm text-gray-600">
-                        {completed}/{total} 완료
+                      <h3 className="font-semibold text-[#2D241E]">{course.title}</h3>
+                      <span className="text-sm text-[#8C857E]">
+                        {completed}/{total} {t('progress.completed')}
                       </span>
                     </div>
 
                     {/* 진도바 */}
-                    <div className="w-full bg-gray-200 rounded-full h-2.5 mb-3">
+                    <div className="w-full bg-[#E5E1D8] rounded-full h-2.5 mb-3">
                       <div
-                        className="bg-aju-sky h-2.5 rounded-full transition-all"
+                        className="bg-[#4A5D4E] h-2.5 rounded-full transition-all"
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
 
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">진도율: {percentage}%</span>
+                      <span className="text-[#8C857E]">{t('progress.progressRate')}: {percentage}%</span>
                       {avgScore > 0 && (
-                        <span className="text-gray-600">평균 점수: {avgScore}점</span>
+                        <span className="text-[#8C857E]">{t('progress.averageScore')}: {avgScore}{t('progress.points')}</span>
                       )}
                     </div>
                   </div>
@@ -198,30 +209,33 @@ export default function MyProgressPage() {
         </div>
 
         {/* 최근 퀴즈 결과 */}
-        <div className="mt-8 bg-white rounded-xl shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">최근 퀴즈 결과</h2>
+        <div className="mt-8 bg-white rounded-xl shadow-sm border border-[#E5E1D8] p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <FileText className="w-5 h-5 text-[#4A5D4E]" />
+            <h2 className="text-xl font-semibold text-[#2D241E]">{t('progress.recentQuizResults')}</h2>
+          </div>
 
           {submissions.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">
-              아직 제출한 퀴즈가 없습니다.
+            <p className="text-[#8C857E] text-center py-8">
+              {t('progress.noQuizzes')}
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-[#F5F3ED]">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      챕터
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[#8C857E] uppercase tracking-wider">
+                      {t('progress.chapter')}
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      점수
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[#8C857E] uppercase tracking-wider">
+                      {t('progress.score')}
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      제출일
+                    <th className="px-6 py-3 text-left text-xs font-medium text-[#8C857E] uppercase tracking-wider">
+                      {t('progress.submittedDate')}
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-[#E5E1D8]">
                   {submissions.slice(0, 5).map(submission => {
                     const chapter = chapters.find(c => c.id === submission.chapterId);
                     const submittedAt = submission.createdAt instanceof Date
@@ -230,22 +244,22 @@ export default function MyProgressPage() {
 
                     return (
                       <tr key={submission.id}>
-                        <td className="px-6 py-4 text-sm text-gray-900">
-                          {chapter?.title || '알 수 없음'}
+                        <td className="px-6 py-4 text-sm text-[#2D241E]">
+                          {chapter?.title || t('progress.unknown')}
                         </td>
                         <td className="px-6 py-4">
                           <span className={`text-sm font-semibold ${
                             submission.score >= 80
-                              ? 'text-green-600'
+                              ? 'text-[#4A5D4E]'
                               : submission.score >= 60
-                              ? 'text-yellow-600'
+                              ? 'text-[#D4AF37]'
                               : 'text-red-600'
                           }`}>
-                            {submission.score}점
+                            {submission.score}{t('progress.points')}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-500">
-                          {submittedAt.toLocaleDateString('ko-KR')}
+                        <td className="px-6 py-4 text-sm text-[#8C857E]">
+                          {submittedAt.toLocaleDateString(language === 'ko' ? 'ko-KR' : 'vi-VN')}
                         </td>
                       </tr>
                     );

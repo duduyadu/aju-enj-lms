@@ -4,7 +4,9 @@ import AdminGuard from '@/components/AdminGuard';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useRouter } from 'next/navigation';
+import LanguageToggle from '@/components/LanguageToggle';
 import {
   LayoutDashboard,
   Users,
@@ -24,6 +26,7 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const { logout } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -36,12 +39,12 @@ export default function AdminLayout({
   };
 
   const menuItems = [
-    { href: '/admin', label: '대시보드', labelEn: 'Dashboard', icon: LayoutDashboard },
-    { href: '/admin/students', label: '학생 관리', labelEn: 'Students', icon: Users },
-    { href: '/admin/courses', label: '코스 관리', labelEn: 'Courses', icon: BookOpen },
-    { href: '/admin/chapters-v2', label: '챕터 관리 (간편)', labelEn: 'Chapters', icon: Video },
-    { href: '/admin/chapters', label: '챕터 관리 (상세)', labelEn: 'Chapters Detail', icon: FileVideo },
-    { href: '/admin/grades', label: '성적 조회', labelEn: 'Grades', icon: BarChart3 },
+    { href: '/admin', label: t('adminNav.dashboard'), labelEn: 'Dashboard', icon: LayoutDashboard },
+    { href: '/admin/students', label: t('adminNav.students'), labelEn: 'Students', icon: Users },
+    { href: '/admin/courses', label: t('adminNav.courses'), labelEn: 'Courses', icon: BookOpen },
+    { href: '/admin/chapters-v2', label: t('adminNav.chaptersSimple'), labelEn: 'Chapters', icon: Video },
+    { href: '/admin/chapters', label: t('adminNav.chaptersDetail'), labelEn: 'Chapters Detail', icon: FileVideo },
+    { href: '/admin/grades', label: t('adminNav.grades'), labelEn: 'Grades', icon: BarChart3 },
   ];
 
   return (
@@ -60,24 +63,25 @@ export default function AdminLayout({
                     AJU E&J Admin
                   </h1>
                   <span className="text-[9px] uppercase tracking-[0.2em] text-porcelain/60">
-                    관리자 패널
+                    {t('adminNav.adminPanel')}
                   </span>
                 </div>
               </div>
               <div className="flex items-center gap-4">
+                <LanguageToggle />
                 <Link
                   href="/dashboard"
                   className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-porcelain/70 hover:text-porcelain transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  학생 화면
+                  {t('adminNav.studentView')}
                 </Link>
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-2 px-4 py-2 bg-red-500/20 text-red-300 rounded-full text-[10px] uppercase tracking-[0.2em] hover:bg-red-500/30 transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
-                  로그아웃
+                  {t('common.logout')}
                 </button>
               </div>
             </div>
@@ -86,7 +90,7 @@ export default function AdminLayout({
 
         <div className="flex flex-col sm:flex-row">
           {/* Sidebar */}
-          <nav className="w-full sm:w-72 bg-white border-r border-museum-border min-h-[calc(100vh-4rem)]">
+          <nav className="w-full sm:w-72 bg-white border-r border-museum-border min-h-[calc(100vh-4rem)] relative z-10">
             <div className="p-6">
               <span className="text-[9px] uppercase tracking-[0.3em] text-taupe block mb-4">
                 Navigation

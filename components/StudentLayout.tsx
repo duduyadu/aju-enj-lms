@@ -1,90 +1,126 @@
-'use client';
+"use client"
 
-import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
-import Footer from './Footer';
-import Link from 'next/link';
+import type { ReactNode } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { BookOpen, LayoutDashboard, TrendingUp, User, LogOut } from "lucide-react"
+import { useAuth } from "@/contexts/AuthContext"
+import { useLanguage } from "@/contexts/LanguageContext"
+import { signOut } from "firebase/auth"
+import { auth } from "@/lib/firebase"
+import { useRouter } from "next/navigation"
+import LanguageToggle from "@/components/LanguageToggle"
 
 interface StudentLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode
 }
 
 export default function StudentLayout({ children }: StudentLayoutProps) {
-  const { userData, logout } = useAuth();
-  const router = useRouter();
+  const pathname = usePathname()
+  const { userData } = useAuth()
+  const { t } = useLanguage()
+  const router = useRouter()
 
-  const handleLogout = async () => {
+  const handleSignOut = async () => {
     try {
-      await logout();
-      router.push('/login');
+      await signOut(auth)
+      router.push("/")
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Error signing out:", error)
     }
-  };
+  }
+
+  const navigation = [
+    { name: t('nav.dashboard'), href: "/dashboard", icon: LayoutDashboard },
+    { name: t('nav.myProgress'), href: "/my-progress", icon: TrendingUp },
+  ]
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* 헤더 */}
-      <header className="bg-aju-navy text-white shadow-lg sticky top-0 z-50">
+    <div className="min-h-screen bg-[#F5F3ED]">
+      {/* Header */}
+      <header className="bg-white border-b border-[#E5E1D8] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Link href="/dashboard" className="text-xl sm:text-2xl font-bold text-aju-gold hover:text-aju-sky transition">
-                AJU E&J LMS
-              </Link>
-
-              {/* 네비게이션 메뉴 */}
-              <nav className="hidden sm:flex space-x-4 ml-8">
-                <Link href="/courses" className="hover:text-aju-sky transition">
-                  강의
-                </Link>
-                <Link href="/my-progress" className="hover:text-aju-sky transition">
-                  내 학습
-                </Link>
-                {userData?.role === 'admin' && (
-                  <Link href="/admin" className="hover:text-aju-gold transition font-semibold">
-                    관리자
-                  </Link>
-                )}
-              </nav>
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#4A5D4E] flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="font-bold text-lg text-[#2D241E]">AJU E&J</h1>
+                <p className="text-[9px] uppercase tracking-[0.2em] text-[#8C857E]">Korean Academy</p>
+              </div>
             </div>
 
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              {userData && (
-                <>
-                  <span className="text-sm sm:text-base hidden sm:block">
-                    {userData.name}님
-                  </span>
-                  {userData.role === 'admin' && (
-                    <Link href="/admin" className="sm:hidden px-3 py-1 bg-aju-gold text-aju-navy rounded-lg hover:bg-opacity-90 transition text-sm font-semibold">
-                      관리자
-                    </Link>
-                  )}
-                  {!userData.isPaid && userData.role !== 'admin' && (
-                    <span className="px-2 py-1 bg-yellow-500 text-xs rounded-full">
-                      미승인
-                    </span>
-                  )}
-                </>
-              )}
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-2">
+              {navigation.map((item) => {
+                const Icon = item.icon
+                const isActive = pathname === item.href
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all ${
+                      isActive ? "bg-[#4A5D4E] text-white" : "text-[#8C857E] hover:bg-[#F5F3ED] hover:text-[#2D241E]"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {item.name}
+                  </Link>
+                )
+              })}
+            </nav>
+
+            {/* User Menu */}
+            <div className="flex items-center gap-3">
+              <LanguageToggle />
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-[#F5F3ED] rounded-lg">
+                <User className="w-4 h-4 text-[#8C857E]" />
+                <span className="text-sm text-[#2D241E]">{userData?.name}</span>
+              </div>
               <button
-                onClick={handleLogout}
-                className="px-3 py-1 sm:px-4 sm:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm sm:text-base"
+                onClick={handleSignOut}
+                className="p-2 text-[#8C857E] hover:text-[#2D241E] hover:bg-[#F5F3ED] rounded-lg transition-all"
               >
-                로그아웃
+                <LogOut className="w-5 h-5" />
               </button>
             </div>
           </div>
         </div>
+
+        {/* Mobile Navigation */}
+        <nav className="md:hidden border-t border-[#E5E1D8] px-4 py-2 flex gap-2">
+          {navigation.map((item) => {
+            const Icon = item.icon
+            const isActive = pathname === item.href
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm flex-1 justify-center transition-all ${
+                  isActive ? "bg-[#4A5D4E] text-white" : "text-[#8C857E] hover:bg-[#F5F3ED] hover:text-[#2D241E]"
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                <span className="text-xs">{item.name}</span>
+              </Link>
+            )
+          })}
+        </nav>
       </header>
 
-      {/* 메인 콘텐츠 */}
-      <main className="flex-1">
-        {children}
-      </main>
+      {/* Main Content */}
+      <main>{children}</main>
 
-      {/* AJU E&J 푸터 */}
-      <Footer />
+      {/* Footer */}
+      <footer className="bg-[#2D241E] text-[#F5F3ED] py-8 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-sm text-[#F5F3ED]/70 mb-2">{t('footer.copyright')}</p>
+          <p className="text-xs text-[#F5F3ED]/50">
+            {t('footer.disclaimer')}
+          </p>
+        </div>
+      </footer>
     </div>
-  );
+  )
 }

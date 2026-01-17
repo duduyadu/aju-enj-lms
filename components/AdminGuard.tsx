@@ -1,42 +1,61 @@
-'use client';
+"use client"
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import type React from "react"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/contexts/AuthContext"
 
-interface AdminGuardProps {
-  children: React.ReactNode;
-}
-
-export default function AdminGuard({ children }: AdminGuardProps) {
-  const router = useRouter();
-  const { userData, loading } = useAuth();
+export default function AdminGuard({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
+  const { userData, loading, firebaseUser } = useAuth()
+  const [isAuthorized, setIsAuthorized] = useState(false)
+  const [checkComplete, setCheckComplete] = useState(false)
 
   useEffect(() => {
-    if (!loading) {
-      if (!userData) {
-        // 로그인하지 않은 경우
-        alert('로그인이 필요합니다.');
-        router.push('/login');
-      } else if (userData.role !== 'admin') {
-        // 관리자가 아닌 경우
-        alert('관리자만 접근할 수 있습니다.');
-        router.push('/dashboard');
-      }
+    // 로딩 중이면 대기
+    if (loading) return
+
+    // 로그인 안 된 경우
+    if (!firebaseUser || !userData) {
+      router.push("/login")
+      return
     }
-  }, [userData, loading, router]);
 
-  if (loading) {
+    // 관리자가 아닌 경우
+    if (userData.role !== "admin") {
+      router.push("/dashboard")
+      return
+    }
+
+    // 권한 확인 완료
+    setIsAuthorized(true)
+    setCheckComplete(true)
+  }, [userData, loading, firebaseUser, router])
+
+  // 로딩 중이거나 권한 확인 중
+  if (loading || (!checkComplete && !isAuthorized)) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">권한 확인 중...</div>
+      <div className="min-h-screen bg-porcelain flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 rounded-full border-3 border-botanical border-t-transparent animate-spin mx-auto mb-4" />
+          <p className="text-taupe text-sm">권한을 확인하는 중...</p>
+        </div>
       </div>
-    );
+    )
   }
 
-  if (!userData || userData.role !== 'admin') {
-    return null;
+  // 권한 없음 (리다이렉트 대기 중)
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-porcelain flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 rounded-full border-3 border-botanical border-t-transparent animate-spin mx-auto mb-4" />
+          <p className="text-taupe text-sm">리다이렉트 중...</p>
+        </div>
+      </div>
+    )
   }
 
-  return <>{children}</>;
+  // 권한 있음 - children 렌더링
+  return <>{children}</>
 }

@@ -3,16 +3,26 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
-import { BookOpen, Mail, Lock, ArrowRight, Shield } from 'lucide-react';
+import { BookOpen, Mail, Lock, ArrowRight, Shield, X, CheckCircle } from 'lucide-react';
+import LanguageToggle from '@/components/LanguageToggle';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, loginWithGoogle } = useAuth();
+  const { login, loginWithGoogle, resetPassword } = useAuth();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // 비밀번호 찾기 관련 상태
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetError, setResetError] = useState('');
+  const [resetSuccess, setResetSuccess] = useState(false);
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,23 +57,44 @@ export default function LoginPage() {
     }
   };
 
+  // 비밀번호 재설정 이메일 전송
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetError('');
+    setResetLoading(true);
+
+    try {
+      await resetPassword(resetEmail);
+      setResetSuccess(true);
+    } catch (err: any) {
+      setResetError(err.message);
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  // 모달 닫기
+  const closeResetModal = () => {
+    setShowResetModal(false);
+    setResetEmail('');
+    setResetError('');
+    setResetSuccess(false);
+  };
+
   return (
     <div className="min-h-screen bg-porcelain flex">
       {/* Left Side - Decorative */}
       <div className="hidden lg:flex lg:w-1/2 bg-botanical relative overflow-hidden">
         <div className="absolute inset-0 flex flex-col justify-center px-16">
           <span className="text-[10px] uppercase tracking-[0.4em] text-porcelain/60 mb-6">
-            Welcome Back
+            {t('login.welcomeBack')}
           </span>
           <h2 className="font-serif font-light text-5xl text-porcelain leading-tight mb-6">
-            학습의 여정을
-            <br />
-            이어가세요
+            {t('login.continueJourney')}
           </h2>
           <div className="gold-line w-24 mb-6 opacity-60" />
           <p className="text-porcelain/80 text-lg max-w-md leading-relaxed">
-            AJU E&J와 함께하는 체계적인 교육 프로그램으로
-            목표를 향해 한 걸음씩 나아가세요.
+            {t('login.welcomeMessage')}
           </p>
         </div>
         {/* Decorative circles */}
@@ -74,7 +105,10 @@ export default function LoginPage() {
       {/* Right Side - Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-          {/* Logo */}
+          {/* Logo & Language Toggle */}
+          <div className="flex justify-end mb-4">
+            <LanguageToggle />
+          </div>
           <div className="text-center mb-10">
             <Link href="/" className="inline-flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-full bg-botanical flex items-center justify-center">
@@ -82,8 +116,8 @@ export default function LoginPage() {
               </div>
               <span className="font-serif font-light text-2xl text-espresso">AJU E&J</span>
             </Link>
-            <h1 className="font-serif font-light text-3xl text-espresso mb-2">로그인</h1>
-            <p className="text-taupe text-sm">베트남 유학생 교육 플랫폼</p>
+            <h1 className="font-serif font-light text-3xl text-espresso mb-2">{t('login.title')}</h1>
+            <p className="text-taupe text-sm">{t('login.subtitle')}</p>
           </div>
 
           {/* Error Message */}
@@ -97,7 +131,7 @@ export default function LoginPage() {
           <form onSubmit={handleEmailLogin} className="space-y-5">
             <div>
               <label htmlFor="email" className="block text-[10px] uppercase tracking-[0.2em] text-taupe mb-2">
-                이메일
+                {t('common.email')}
               </label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-taupe" />
@@ -107,16 +141,28 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-12 pr-4 py-4 bg-porcelain border border-museum-border rounded-2xl text-espresso placeholder:text-taupe/50 focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all"
-                  placeholder="your@email.com"
+                  placeholder={t('login.emailPlaceholder')}
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-[10px] uppercase tracking-[0.2em] text-taupe mb-2">
-                비밀번호
-              </label>
+              <div className="flex justify-between items-center mb-2">
+                <label htmlFor="password" className="block text-[10px] uppercase tracking-[0.2em] text-taupe">
+                  {t('common.password')}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowResetModal(true);
+                    setResetEmail(email);
+                  }}
+                  className="text-[10px] text-botanical hover:text-espresso transition-colors"
+                >
+                  {t('login.forgotPassword')}
+                </button>
+              </div>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-taupe" />
                 <input
@@ -125,7 +171,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-12 pr-4 py-4 bg-porcelain border border-museum-border rounded-2xl text-espresso placeholder:text-taupe/50 focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all"
-                  placeholder="••••••••"
+                  placeholder={t('login.passwordPlaceholder')}
                   required
                 />
               </div>
@@ -136,7 +182,7 @@ export default function LoginPage() {
               disabled={loading}
               className="group w-full h-14 bg-botanical text-porcelain rounded-full text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:scale-[1.02] transition-all duration-300 shadow-museum hover:shadow-museum-hover disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              {loading ? '로그인 중...' : '이메일로 로그인'}
+              {loading ? t('login.loggingIn') : t('login.loginWithEmail')}
               {!loading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
             </button>
           </form>
@@ -147,7 +193,7 @@ export default function LoginPage() {
               <div className="w-full border-t border-museum-border"></div>
             </div>
             <div className="relative flex justify-center">
-              <span className="px-4 bg-porcelain text-[10px] uppercase tracking-[0.2em] text-taupe">또는</span>
+              <span className="px-4 bg-porcelain text-[10px] uppercase tracking-[0.2em] text-taupe">{t('login.or')}</span>
             </div>
           </div>
 
@@ -175,15 +221,15 @@ export default function LoginPage() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            {loading ? '로그인 중...' : '구글로 로그인'}
+            {loading ? t('login.loggingIn') : t('login.loginWithGoogle')}
           </button>
 
           {/* Sign Up Link */}
           <div className="mt-8 text-center">
             <p className="text-sm text-taupe">
-              계정이 없으신가요?{' '}
+              {t('login.noAccount')}{' '}
               <Link href="/signup" className="text-botanical hover:text-espresso font-medium transition-colors">
-                회원가입
+                {t('common.signup')}
               </Link>
             </p>
           </div>
@@ -193,12 +239,98 @@ export default function LoginPage() {
             <div className="flex items-start gap-3">
               <Shield className="w-5 h-5 text-botanical mt-0.5 flex-shrink-0" />
               <p className="text-xs text-taupe leading-relaxed">
-                AJU E&J는 계정 공유를 방지하기 위해 한 번에 하나의 기기에서만 로그인이 가능합니다.
+                {t('login.securityNotice')}
               </p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* 비밀번호 재설정 모달 */}
+      {showResetModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-8 relative">
+            {/* 닫기 버튼 */}
+            <button
+              onClick={closeResetModal}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-porcelain flex items-center justify-center hover:bg-museum-border transition-colors"
+            >
+              <X className="w-4 h-4 text-taupe" />
+            </button>
+
+            {!resetSuccess ? (
+              <>
+                {/* 헤더 */}
+                <div className="text-center mb-6">
+                  <div className="w-14 h-14 rounded-full bg-botanical/10 flex items-center justify-center mx-auto mb-4">
+                    <Mail className="w-7 h-7 text-botanical" />
+                  </div>
+                  <h2 className="font-serif font-light text-2xl text-espresso mb-2">{t('resetPassword.title')}</h2>
+                  <p className="text-sm text-taupe">
+                    {t('resetPassword.description')}
+                  </p>
+                </div>
+
+                {/* 에러 메시지 */}
+                {resetError && (
+                  <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-100">
+                    <p className="text-red-600 text-sm text-center">{resetError}</p>
+                  </div>
+                )}
+
+                {/* 이메일 입력 폼 */}
+                <form onSubmit={handleResetPassword} className="space-y-4">
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-[0.2em] text-taupe mb-2">
+                      {t('resetPassword.emailLabel')}
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-taupe" />
+                      <input
+                        type="email"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        className="w-full pl-12 pr-4 py-4 bg-porcelain border border-museum-border rounded-2xl text-espresso placeholder:text-taupe/50 focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all"
+                        placeholder={t('login.emailPlaceholder')}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={resetLoading}
+                    className="w-full h-12 bg-botanical text-porcelain rounded-full text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100"
+                  >
+                    {resetLoading ? t('resetPassword.sending') : t('resetPassword.sendLink')}
+                  </button>
+                </form>
+              </>
+            ) : (
+              /* 성공 화면 */
+              <div className="text-center py-4">
+                <div className="w-16 h-16 rounded-full bg-botanical/10 flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-botanical" />
+                </div>
+                <h2 className="font-serif font-light text-2xl text-espresso mb-2">{t('resetPassword.successTitle')}</h2>
+                <p className="text-sm text-taupe mb-6">
+                  <span className="font-medium text-espresso">{resetEmail}</span><br />
+                  {t('resetPassword.successMessage')}
+                </p>
+                <p className="text-xs text-taupe mb-6">
+                  {t('resetPassword.checkSpam')}
+                </p>
+                <button
+                  onClick={closeResetModal}
+                  className="w-full h-12 bg-botanical text-porcelain rounded-full text-[11px] uppercase tracking-[0.2em] hover:scale-[1.02] transition-all duration-300"
+                >
+                  {t('common.confirm')}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

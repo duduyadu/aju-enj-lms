@@ -3,12 +3,15 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
 import { BookOpen, Shield, Smartphone, Target, ArrowRight } from 'lucide-react';
+import LanguageToggle from '@/components/LanguageToggle';
 
 export default function Home() {
   const router = useRouter();
   const { firebaseUser, loading } = useAuth();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (!loading && firebaseUser) {
@@ -28,17 +31,18 @@ export default function Home() {
             <span className="font-serif font-light text-xl text-espresso">AJU E&J</span>
           </div>
           <div className="flex items-center gap-4">
+            <LanguageToggle />
             <Link
               href="/login"
               className="text-[11px] uppercase tracking-[0.2em] text-taupe hover:text-espresso transition-colors"
             >
-              로그인
+              {t('common.login')}
             </Link>
             <Link
               href="/signup"
               className="h-10 px-5 bg-botanical text-porcelain rounded-full text-[11px] uppercase tracking-[0.2em] flex items-center gap-2 hover:scale-[1.02] transition-transform shadow-museum"
             >
-              시작하기
+              {t('landing.getStarted')}
             </Link>
           </div>
         </div>
@@ -54,9 +58,9 @@ export default function Home() {
 
           {/* Main Title */}
           <h1 className="font-serif font-light text-5xl sm:text-7xl lg:text-8xl text-espresso leading-[1.1] mb-8">
-            배움의 새로운
+            {t('landing.heroTitle1')}
             <br />
-            <span className="text-botanical">여정을 시작하세요</span>
+            <span className="text-botanical">{t('landing.heroTitle2')}</span>
           </h1>
 
           {/* Gold Line */}
@@ -64,9 +68,7 @@ export default function Home() {
 
           {/* Subtitle */}
           <p className="text-lg sm:text-xl text-taupe max-w-2xl mx-auto mb-12 leading-relaxed">
-            AJU E&J와 함께하는 베트남 유학생 전문 교육 플랫폼.
-            <br className="hidden sm:block" />
-            한국어 실력 향상과 성공적인 한국 생활을 위한 맞춤형 학습을 경험하세요.
+            {t('landing.heroSubtitle')}
           </p>
 
           {/* CTA Buttons */}
@@ -75,14 +77,14 @@ export default function Home() {
               href="/signup"
               className="group h-14 px-10 bg-botanical text-porcelain rounded-full text-[11px] uppercase tracking-[0.2em] flex items-center gap-3 hover:scale-[1.02] transition-all duration-300 shadow-museum hover:shadow-museum-hover"
             >
-              무료로 시작하기
+              {t('landing.startFree')}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
               href="/login"
               className="h-14 px-10 border border-museum-border text-espresso rounded-full text-[11px] uppercase tracking-[0.2em] flex items-center hover:bg-museum-border/30 transition-all duration-300"
             >
-              기존 회원 로그인
+              {t('landing.existingMember')}
             </Link>
           </div>
         </div>
@@ -95,7 +97,7 @@ export default function Home() {
           <div className="text-center mb-16">
             <span className="text-[10px] uppercase tracking-[0.4em] text-taupe">Why Choose Us</span>
             <h2 className="font-serif font-light text-4xl sm:text-5xl text-espresso mt-4">
-              학습의 모든 것
+              {t('landing.whyChooseUs')}
             </h2>
           </div>
 
@@ -110,11 +112,10 @@ export default function Home() {
                 <span className="text-[10px] uppercase tracking-[0.3em] text-museum-gold">Premium</span>
               </div>
               <h3 className="font-serif font-light text-3xl text-espresso mb-4">
-                안전한 콘텐츠 보호
+                {t('landing.secureContent')}
               </h3>
               <p className="text-taupe leading-relaxed max-w-md">
-                계정 공유 방지 시스템으로 프리미엄 교육 콘텐츠를 안전하게 보호합니다.
-                한 기기에서만 접속 가능한 보안 시스템을 적용했습니다.
+                {t('landing.secureContentDesc')}
               </p>
             </div>
 
@@ -126,7 +127,7 @@ export default function Home() {
               <div>
                 <span className="text-[10px] uppercase tracking-[0.3em] text-porcelain/70 block mb-2">Mobile First</span>
                 <h3 className="font-serif font-light text-2xl text-porcelain">
-                  모바일 최적화
+                  {t('landing.mobileOptimized')}
                 </h3>
               </div>
             </div>
@@ -139,7 +140,7 @@ export default function Home() {
               <div>
                 <span className="text-[10px] uppercase tracking-[0.3em] text-espresso/70 block mb-2">Personalized</span>
                 <h3 className="font-serif font-light text-2xl text-espresso">
-                  맞춤형 교육
+                  {t('landing.personalizedEducation')}
                 </h3>
               </div>
             </div>
@@ -153,11 +154,10 @@ export default function Home() {
                 <span className="text-[10px] uppercase tracking-[0.3em] text-botanical">Curated</span>
               </div>
               <h3 className="font-serif font-light text-3xl text-espresso mb-4">
-                체계적인 커리큘럼
+                {t('landing.systematicCurriculum')}
               </h3>
               <p className="text-taupe leading-relaxed max-w-md">
-                베트남 유학생의 니즈에 맞춘 전문 커리큘럼으로 효과적인 학습을 지원합니다.
-                한국어부터 생활 정보까지 필요한 모든 것을 제공합니다.
+                {t('landing.systematicCurriculumDesc')}
               </p>
             </div>
           </div>
@@ -174,7 +174,7 @@ export default function Home() {
             <span className="font-serif font-light text-lg text-espresso">AJU E&J</span>
           </div>
           <p className="text-[11px] uppercase tracking-[0.2em] text-taupe">
-            © 2024 AJU E&J. All rights reserved.
+            {t('footer.copyright')}
           </p>
         </div>
       </footer>
