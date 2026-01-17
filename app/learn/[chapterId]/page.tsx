@@ -78,9 +78,25 @@ declare global {
 export default function LearnPage() {
   const router = useRouter();
   const params = useParams();
-  const chapterId = params.chapterId as string;
   const { userData, loading: authLoading, checkSessionValid } = useAuth();
   const { t } = useLanguage();
+
+  // 클라이언트에서 실제 URL 경로를 파싱하여 chapterId 추출
+  const [chapterId, setChapterId] = useState<string>('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const pathParts = window.location.pathname.split('/');
+      const learnIndex = pathParts.indexOf('learn');
+      if (learnIndex !== -1 && pathParts[learnIndex + 1]) {
+        // trailing slash 제거
+        const id = pathParts[learnIndex + 1].replace(/\/$/, '');
+        if (id && id !== 'dummy') {
+          setChapterId(id);
+        }
+      }
+    }
+  }, []);
 
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [course, setCourse] = useState<Course | null>(null);

@@ -89,9 +89,25 @@ interface ProgressData {
 export default function ChaptersPage() {
   const router = useRouter();
   const params = useParams();
-  const courseId = params.courseId as string;
   const { userData, loading: authLoading } = useAuth();
   const { t } = useLanguage();
+
+  // 클라이언트에서 실제 URL 경로를 파싱하여 courseId 추출
+  const [courseId, setCourseId] = useState<string>('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const pathParts = window.location.pathname.split('/');
+      const courseIndex = pathParts.indexOf('courses');
+      if (courseIndex !== -1 && pathParts[courseIndex + 1]) {
+        // trailing slash 제거
+        const id = pathParts[courseIndex + 1].replace(/\/$/, '');
+        if (id && id !== 'dummy') {
+          setCourseId(id);
+        }
+      }
+    }
+  }, []);
 
   const [course, setCourse] = useState<Course | null>(null);
   const [chapters, setChapters] = useState<Chapter[]>([]);
