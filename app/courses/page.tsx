@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useAuth, SubscriptionStatus } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import StudentLayout from '@/components/StudentLayout';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 import { Course } from '@/types';
+import { getActiveCourses } from '@/services/courseService';
+import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { BookOpen, Clock, Users, ChevronRight, AlertCircle, Calendar } from 'lucide-react';
 
@@ -29,18 +29,11 @@ export default function CoursesPage() {
 
   const fetchCourses = async () => {
     try {
-      const q = query(collection(db, 'courses'), where('isActive', '==', true));
-      const snapshot = await getDocs(q);
-      const courseData = snapshot.docs.map(doc => ({
-        ...doc.data(),
-        id: doc.id
-      } as Course));
-
-      // 순서대로 정렬
-      courseData.sort((a, b) => a.order - b.order);
-      setCourses(courseData);
+      const result = await getActiveCourses();
+      setCourses(result.data);
     } catch (error) {
       console.error('Error fetching courses:', error);
+      toast.error(t('errors.loadCourses') || '코스 목록을 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }

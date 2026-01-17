@@ -9,6 +9,15 @@ import { doc, getDoc, addDoc, collection, serverTimestamp, updateDoc, query, whe
 import { db } from '@/lib/firebase';
 import { Chapter, Course, Submission, Progress, User } from '@/types';
 import {
+  getProgressByChapter,
+  initializeProgress,
+  updateProgressWithTransaction,
+  markVideoCompleteWithTransaction,
+  updateProgress
+} from '@/services/progressService';
+import { getChapterById, getCourseById } from '@/services/courseService';
+import toast from 'react-hot-toast';
+import {
   BookOpen,
   ArrowLeft,
   User as UserIcon,
@@ -245,15 +254,16 @@ export default function LearnPage() {
     const watchPercent = percent ?? (totalTime > 0 ? Math.round((watchTime / totalTime) * 100) : 0);
 
     try {
-      await updateDoc(doc(db, 'progress', progressDocId), {
-        watchedDuration: watchTime,
-        totalDuration: totalTime,
-        watchedPercent: watchPercent,
-        lastWatchedAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+      // Transaction을 사용하여 동시성 문제 해결
+      await updateProgressWithTransaction(
+        progressDocId,
+        watchTime,
+        totalTime,
+        watchPercent
+      );
     } catch (error) {
       console.error('Error saving progress:', error);
+      // 진행률 저장 실패는 사용자에게 알리지 않음 (자동 저장이므로)
     }
   };
 
@@ -261,13 +271,8 @@ export default function LearnPage() {
     if (!userData || !chapter || !progressDocId) return;
 
     try {
-      await updateDoc(doc(db, 'progress', progressDocId), {
-        isCompleted: true,
-        watchedPercent: 100,
-        watchedDuration: totalDuration,
-        lastWatchedAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+      // Transaction을 사용하여 동시성 문제 해결
+      await markVideoCompleteWithTransaction(progressDocId, totalDuration);
       setWatchedPercent(100);
     } catch (error) {
       console.error('Error marking video as complete:', error);
@@ -361,7 +366,7 @@ export default function LearnPage() {
     if (!chapter?.quiz || !userData) return;
 
     if (answers.includes(-1)) {
-      alert(t('learn.answerAll'));
+      toast.error(t('learn.answerAll') || '모든 문제에 답해주세요.');
       return;
     }
 
@@ -389,13 +394,13 @@ export default function LearnPage() {
       });
 
       if (progressDocId) {
-        await updateDoc(doc(db, 'progress', progressDocId), {
-          isCompleted: true,
-          updatedAt: serverTimestamp()
-        });
+        await updateProgress(progressDocId, { isCompleted: true });
       }
+
+      toast.success(t('learn.quizComplete') || '퀴즈를 완료했습니다!');
     } catch (error) {
       console.error('Error saving submission:', error);
+      toast.error(t('errors.saveQuiz') || '퀴즈 저장에 실패했습니다.');
     }
   };
 
