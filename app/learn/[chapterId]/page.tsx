@@ -531,8 +531,8 @@ export default function LearnPage() {
             </div>
           </div>
 
-          {/* Quiz Section */}
-          {chapter.quiz && (
+          {/* Quiz Section - 퀴즈 기능 비활성화 */}
+          {false && chapter?.quiz && (
             <div className="bg-white rounded-2xl border border-[#E5E1D8] shadow-sm overflow-hidden">
               {/* Quiz Header */}
               <div className="bg-[#4A5D4E] px-6 py-5">
@@ -550,7 +550,7 @@ export default function LearnPage() {
               {/* Quiz Content */}
               <div className="p-6">
                 <div className="space-y-6">
-                  {chapter.quiz.questions.map((question, qIndex) => (
+                  {chapter?.quiz?.questions?.map((question, qIndex) => (
                     <div
                       key={question.id}
                       className="bg-[#F5F3ED] rounded-xl p-5 border border-[#E5E1D8]"

@@ -240,11 +240,12 @@ export default function ChapterManagementV2() {
                         <h4 className="font-semibold text-gray-800">{chapter.title}</h4>
                         <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
                           <span>🎥 {chapter.duration || 0}{t('chapters.minutes')}</span>
-                          {chapter.quiz && (
+                          {/* 퀴즈 표시 비활성화 */}
+                          {/* {chapter.quiz && (
                             <span className="text-green-600">
                               📝 {t('chaptersV2.quizQuestions').replace('{count}', chapter.quiz.questions.length.toString())}
                             </span>
-                          )}
+                          )} */}
                         </div>
                       </div>
                     </div>
@@ -347,7 +348,8 @@ export default function ChapterManagementV2() {
                 </div>
               </div>
 
-              {/* 간단한 퀴즈 추가 */}
+              {/* 간단한 퀴즈 추가 - 퀴즈 기능 비활성화 */}
+              {false && (
               <div className="border-t pt-4">
                 <div className="flex justify-between items-center mb-3">
                   <h4 className="font-semibold text-gray-800">{t('chaptersV2.quizOptional')}</h4>
@@ -415,6 +417,7 @@ export default function ChapterManagementV2() {
                   </div>
                 ))}
               </div>
+              )}
             </div>
 
             {/* 액션 버튼 */}

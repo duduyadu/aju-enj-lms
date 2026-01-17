@@ -20,6 +20,9 @@ import {
   Flame,
   Loader2,
   GraduationCap,
+  LayoutDashboard,
+  TrendingUp,
+  ShoppingBag,
 } from 'lucide-react';
 
 // 대시보드 컴포넌트들
@@ -210,7 +213,7 @@ export default function DashboardPage() {
       <header className="sticky top-0 z-50 bg-white border-b border-[#E5E1D8]">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <div className="w-10 h-10 rounded-full bg-[#4A5D4E] flex items-center justify-center">
                 <BookOpen className="w-5 h-5 text-white" />
               </div>
@@ -218,7 +221,7 @@ export default function DashboardPage() {
                 <h1 className="font-bold text-lg text-[#2D241E]">AJU E&J</h1>
                 <p className="text-[9px] uppercase tracking-[0.2em] text-[#8C857E]">Korean Academy</p>
               </div>
-            </div>
+            </Link>
 
             <div className="flex items-center gap-2 sm:gap-3">
               {userData.role === 'admin' && (
@@ -243,6 +246,33 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Navigation */}
+        <nav className="border-t border-[#E5E1D8] px-4 py-2">
+          <div className="max-w-6xl mx-auto flex gap-2 overflow-x-auto">
+            {[
+              { name: t('nav.dashboard'), href: "/dashboard", icon: LayoutDashboard },
+              { name: t('nav.courses'), href: "/courses", icon: BookOpen },
+              { name: t('nav.myProgress'), href: "/my-progress", icon: TrendingUp },
+              { name: t('nav.myOrders'), href: "/my-orders", icon: ShoppingBag },
+            ].map((item) => {
+              const Icon = item.icon;
+              const isActive = item.href === "/dashboard";
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm whitespace-nowrap transition-all ${
+                    isActive ? "bg-[#4A5D4E] text-white" : "text-[#8C857E] hover:bg-[#F5F3ED] hover:text-[#2D241E]"
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {item.name}
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
       </header>
 
       <main className="flex-1">

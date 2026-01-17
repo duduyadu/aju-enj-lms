@@ -202,6 +202,8 @@ export default function StudentManagement() {
 
       const newSubscription: CourseSubscription = {
         approved: true,
+        status: 'ACTIVE',
+        isStarted: true,
         startDate: startDate,
         endDate: endDate,
         months: subscriptionMonths

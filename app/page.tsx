@@ -90,6 +90,40 @@ export default function Home() {
         </div>
       </section>
 
+      {/* YouTube Video Section */}
+      <section className="py-24 px-6 bg-gradient-to-b from-porcelain to-museum-border/20">
+        <div className="max-w-5xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-12">
+            <span className="text-[10px] uppercase tracking-[0.4em] text-taupe">Introduction</span>
+            <h2 className="font-serif font-light text-4xl sm:text-5xl text-espresso mt-4">
+              {t('landing.videoTitle')}
+            </h2>
+            <p className="text-lg text-taupe mt-4 max-w-2xl mx-auto">
+              {t('landing.videoSubtitle')}
+            </p>
+          </div>
+
+          {/* YouTube Video Embed */}
+          <div className="rounded-[2rem] overflow-hidden shadow-museum-hover border border-museum-border bg-espresso">
+            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+              <iframe
+                className="absolute top-0 left-0 w-full h-full"
+                src="https://www.youtube.com/embed/YOUR_VIDEO_ID?rel=0&modestbranding=1"
+                title="AJU E&J Introduction"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+
+          {/* Optional: Video Caption */}
+          <p className="text-center text-sm text-taupe mt-6">
+            © AJU E&J Korean Academy
+          </p>
+        </div>
+      </section>
+
       {/* Features Section - Bento Grid */}
       <section className="py-24 px-6">
         <div className="max-w-7xl mx-auto">

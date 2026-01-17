@@ -211,6 +211,8 @@ const translations: Record<Language, Record<string, string>> = {
     'landing.startFree': '무료로 시작하기',
     'landing.existingMember': '기존 회원 로그인',
     'landing.getStarted': '시작하기',
+    'landing.videoTitle': 'AJU E&J 소개',
+    'landing.videoSubtitle': '베트남 유학생을 위한 최고의 교육 플랫폼을 경험하세요',
     'landing.whyChooseUs': '학습의 모든 것',
     'landing.secureContent': '안전한 콘텐츠 보호',
     'landing.secureContentDesc': '계정 공유 방지 시스템으로 프리미엄 교육 콘텐츠를 안전하게 보호합니다. 한 기기에서만 접속 가능한 보안 시스템을 적용했습니다.',
@@ -266,6 +268,7 @@ const translations: Record<Language, Record<string, string>> = {
     'courses.loadingCourses': '강의를 불러오는 중...',
     'courses.noCourses': '등록된 강의가 없습니다.',
     'courses.startCourse': '강의 시작하기',
+    'courses.viewCourse': '자세히 보기',
     'courses.waitingStatus': '승인 대기 중',
     'courses.brandTitle': 'AJU E&J Education',
     'courses.brandDesc': '베트남 유학생의 성공적인 한국 생활을 위한 맞춤형 교육 프로그램',
@@ -564,6 +567,9 @@ const translations: Record<Language, Record<string, string>> = {
     'notification.daysAgo': '{n}일 전',
     'notification.showingRecent': '최근 {n}개 알림 표시 중',
 
+    // 오류 메시지
+    'errors.loadCourses': '코스 목록을 불러오는데 실패했습니다.',
+
     // 주문 내역
     'orders.title': '주문 내역',
     'orders.subtitle': '나의 수강 신청 및 결제 내역을 확인하세요',
@@ -797,6 +803,8 @@ const translations: Record<Language, Record<string, string>> = {
     'landing.startFree': 'Bắt đầu miễn phí',
     'landing.existingMember': 'Đăng nhập thành viên',
     'landing.getStarted': 'Bắt đầu',
+    'landing.videoTitle': 'Giới thiệu AJU E&J',
+    'landing.videoSubtitle': 'Trải nghiệm nền tảng giáo dục tốt nhất cho du học sinh Việt Nam',
     'landing.whyChooseUs': 'Tất cả về học tập',
     'landing.secureContent': 'Bảo vệ nội dung an toàn',
     'landing.secureContentDesc': 'Bảo vệ nội dung giáo dục cao cấp an toàn với hệ thống chống chia sẻ tài khoản. Áp dụng hệ thống bảo mật chỉ cho phép truy cập từ một thiết bị.',
@@ -852,6 +860,7 @@ const translations: Record<Language, Record<string, string>> = {
     'courses.loadingCourses': 'Đang tải khóa học...',
     'courses.noCourses': 'Chưa có khóa học nào.',
     'courses.startCourse': 'Bắt đầu học',
+    'courses.viewCourse': 'Xem chi tiết',
     'courses.waitingStatus': 'Đang chờ phê duyệt',
     'courses.brandTitle': 'AJU E&J Education',
     'courses.brandDesc': 'Chương trình giáo dục tùy chỉnh cho cuộc sống thành công tại Hàn Quốc của du học sinh Việt Nam',
@@ -1149,6 +1158,9 @@ const translations: Record<Language, Record<string, string>> = {
     'notification.hoursAgo': '{n} giờ trước',
     'notification.daysAgo': '{n} ngày trước',
     'notification.showingRecent': 'Hiển thị {n} thông báo gần đây nhất',
+
+    // 오류 메시지
+    'errors.loadCourses': 'Không thể tải danh sách khóa học.',
 
     // 주문 내역
     'orders.title': 'Lịch sử đơn hàng',

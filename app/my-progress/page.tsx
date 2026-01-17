@@ -109,8 +109,8 @@ export default function MyProgressPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-3xl font-serif font-bold text-[#2D241E] mb-8">{t('progress.title')}</h1>
 
-        {/* 전체 통계 */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+        {/* 전체 통계 - 퀴즈 관련 통계 숨김으로 1개만 표시 */}
+        <div className="grid grid-cols-1 sm:grid-cols-1 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-sm border border-[#E5E1D8] p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -125,7 +125,8 @@ export default function MyProgressPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-[#E5E1D8] p-6">
+          {/* 퀴즈 통계 카드들 비활성화 */}
+          {/* <div className="bg-white rounded-xl shadow-sm border border-[#E5E1D8] p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-[#8C857E]">{t('progress.submittedQuizzes')}</p>
@@ -156,7 +157,7 @@ export default function MyProgressPage() {
                 <Target className="w-6 h-6 text-[#4A5D4E]" />
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* 코스별 진도 */}
@@ -197,9 +198,10 @@ export default function MyProgressPage() {
 
                     <div className="flex justify-between text-sm">
                       <span className="text-[#8C857E]">{t('progress.progressRate')}: {percentage}%</span>
-                      {avgScore > 0 && (
+                      {/* 퀴즈 평균 점수 비활성화 */}
+                      {/* {avgScore > 0 && (
                         <span className="text-[#8C857E]">{t('progress.averageScore')}: {avgScore}{t('progress.points')}</span>
-                      )}
+                      )} */}
                     </div>
                   </div>
                 );
@@ -208,7 +210,8 @@ export default function MyProgressPage() {
           )}
         </div>
 
-        {/* 최근 퀴즈 결과 */}
+        {/* 최근 퀴즈 결과 - 퀴즈 기능 비활성화 */}
+        {false && (
         <div className="mt-8 bg-white rounded-xl shadow-sm border border-[#E5E1D8] p-6">
           <div className="flex items-center gap-3 mb-6">
             <FileText className="w-5 h-5 text-[#4A5D4E]" />
@@ -269,6 +272,7 @@ export default function MyProgressPage() {
             </div>
           )}
         </div>
+        )}
       </div>
     </StudentLayout>
   );

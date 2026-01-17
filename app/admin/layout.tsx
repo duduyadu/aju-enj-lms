@@ -47,7 +47,7 @@ export default function AdminLayout({
     { href: '/admin/courses', label: t('adminNav.courses'), labelSub: t('adminNav.coursesSub'), icon: BookOpen },
     { href: '/admin/chapters-v2', label: t('adminNav.chaptersSimple'), labelSub: t('adminNav.chaptersSub'), icon: Video },
     { href: '/admin/chapters', label: t('adminNav.chaptersDetail'), labelSub: t('adminNav.chaptersDetailSub'), icon: FileVideo },
-    { href: '/admin/grades', label: t('adminNav.grades'), labelSub: t('adminNav.gradesSub'), icon: BarChart3 },
+    // { href: '/admin/grades', label: t('adminNav.grades'), labelSub: t('adminNav.gradesSub'), icon: BarChart3 }, // 퀴즈 기능 비활성화
   ];
 
   return (

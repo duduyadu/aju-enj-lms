@@ -714,12 +714,13 @@ export default function ChaptersPage() {
                                 {chapter.duration}분
                               </span>
                             )}
-                            {chapter.quiz && (
+                            {/* 퀴즈 표시 비활성화 */}
+                            {/* {chapter.quiz && (
                               <span className="flex items-center gap-1 text-[#4A5D4E]">
                                 <CheckCircle className="w-3.5 h-3.5" />
                                 퀴즈 {chapter.quiz.questions.length}문제
                               </span>
-                            )}
+                            )} */}
                           </div>
 
                           {/* 진행률 표시 */}
@@ -801,10 +802,11 @@ export default function ChaptersPage() {
                   <span className="text-[#4A5D4E]">•</span>
                   각 강의를 순서대로 수강하는 것을 권장합니다
                 </li>
-                <li className="flex items-start gap-2">
+                {/* 퀴즈 가이드 비활성화 */}
+                {/* <li className="flex items-start gap-2">
                   <span className="text-[#4A5D4E]">•</span>
                   강의 시청 후 퀴즈를 풀어 학습 내용을 확인하세요
-                </li>
+                </li> */}
                 <li className="flex items-start gap-2">
                   <span className="text-[#4A5D4E]">•</span>
                   모든 학습 기록은 자동으로 저장됩니다

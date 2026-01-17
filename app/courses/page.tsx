@@ -2,20 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, SubscriptionStatus } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import StudentLayout from '@/components/StudentLayout';
 import { Course } from '@/types';
 import { getActiveCourses } from '@/services/courseService';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
-import { BookOpen, Clock, Users, ChevronRight, AlertCircle, Calendar } from 'lucide-react';
+import { BookOpen, Clock, Users, ChevronRight } from 'lucide-react';
 
 export default function CoursesPage() {
   const router = useRouter();
-  const { userData, loading: authLoading, getSubscriptionStatus } = useAuth();
+  const { userData, loading: authLoading } = useAuth();
   const { t } = useLanguage();
-  const subscriptionStatus = getSubscriptionStatus();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -61,65 +60,6 @@ export default function CoursesPage() {
           </p>
         </div>
 
-        {/* 구독 상태 표시 */}
-        {subscriptionStatus.isActive && subscriptionStatus.status === 'active' && (
-          <div className={`mb-8 p-4 rounded-xl flex items-center justify-between ${
-            subscriptionStatus.daysRemaining <= 7
-              ? 'bg-[#FEF3E2] border border-[#F59E0B]/30'
-              : 'bg-[#4A5D4E]/10 border border-[#4A5D4E]/30'
-          }`}>
-            <div className="flex items-center gap-3">
-              <Calendar className={`w-5 h-5 ${subscriptionStatus.daysRemaining <= 7 ? 'text-[#F59E0B]' : 'text-[#4A5D4E]'}`} />
-              <span className={`text-sm ${subscriptionStatus.daysRemaining <= 7 ? 'text-[#92400E]' : 'text-[#4A5D4E]'}`}>
-                {t('subscription.daysRemaining').replace('{days}', String(subscriptionStatus.daysRemaining))}
-                {subscriptionStatus.endDate && (
-                  <span className="ml-2 text-xs opacity-75">
-                    ({t('subscription.until')} {subscriptionStatus.endDate.toLocaleDateString()})
-                  </span>
-                )}
-              </span>
-            </div>
-            {subscriptionStatus.daysRemaining <= 7 && (
-              <a
-                href="https://zalo.me/ajuenj"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1.5 bg-[#F59E0B] text-white rounded-lg text-xs font-medium hover:bg-[#D97706] transition-all"
-              >
-                {t('subscription.renew')}
-              </a>
-            )}
-          </div>
-        )}
-
-        {/* 권한 확인 알림 - 구독이 없거나 만료된 경우 */}
-        {!subscriptionStatus.isActive && (
-          <div className={`mb-8 p-6 rounded-xl ${
-            subscriptionStatus.status === 'expired'
-              ? 'bg-[#FEE2E2] border border-[#EF4444]/30'
-              : 'bg-[#D4AF37]/10 border border-[#D4AF37]/30'
-          }`}>
-            <div className="flex items-start">
-              <AlertCircle className={`w-6 h-6 mr-3 flex-shrink-0 mt-0.5 ${
-                subscriptionStatus.status === 'expired' ? 'text-[#EF4444]' : 'text-[#D4AF37]'
-              }`} />
-              <div>
-                <h3 className={`font-semibold mb-1 ${
-                  subscriptionStatus.status === 'expired' ? 'text-[#DC2626]' : 'text-[#2D241E]'
-                }`}>
-                  {subscriptionStatus.status === 'expired' ? t('subscription.expired') : t('courses.waitingApproval')}
-                </h3>
-                <p className={subscriptionStatus.status === 'expired' ? 'text-[#B91C1C]' : 'text-[#8C857E]'}>
-                  {subscriptionStatus.status === 'expired' ? t('subscription.expiredMessage') : t('courses.waitingMessage')}
-                </p>
-                <p className="text-[#8C857E] text-sm mt-2">
-                  {t('courses.contact')}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* 코스 목록 */}
         {loading ? (
           <div className="text-center py-12">
@@ -160,22 +100,13 @@ export default function CoursesPage() {
                     {course.description}
                   </p>
 
-                  {subscriptionStatus.isActive ? (
-                    <Link
-                      href={`/courses/${course.id}`}
-                      className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#4A5D4E] text-white rounded-lg hover:bg-[#3a4a3e] transition-colors text-sm font-medium"
-                    >
-                      {t('courses.startCourse')}
-                      <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  ) : (
-                    <button
-                      disabled
-                      className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#E5E1D8] text-[#8C857E] rounded-lg cursor-not-allowed text-sm"
-                    >
-                      {subscriptionStatus.status === 'expired' ? t('subscription.expired') : t('courses.waitingStatus')}
-                    </button>
-                  )}
+                  <Link
+                    href={`/courses/${course.id}`}
+                    className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#4A5D4E] text-white rounded-lg hover:bg-[#3a4a3e] transition-colors text-sm font-medium"
+                  >
+                    {t('courses.viewCourse')}
+                    <ChevronRight className="w-4 h-4" />
+                  </Link>
                 </div>
               </div>
             ))}

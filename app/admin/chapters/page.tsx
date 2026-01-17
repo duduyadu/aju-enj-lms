@@ -359,7 +359,8 @@ export default function ChapterManagement() {
               </div>
             </div>
 
-            {/* 퀴즈 섹션 */}
+            {/* 퀴즈 섹션 - 퀴즈 기능 비활성화 */}
+            {false && (
             <div className="border-t border-museum-border pt-6">
               <button
                 type="button"
@@ -460,6 +461,7 @@ export default function ChapterManagement() {
                 </div>
               )}
             </div>
+            )}
 
             <div className="flex gap-3 pt-4">
               <button
@@ -505,7 +507,8 @@ export default function ChapterManagement() {
                 <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">{t('chapters.order')}</th>
                 <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">{t('chapters.chapterInfo')}</th>
                 <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">{t('chapters.course')}</th>
-                <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">{t('chapters.quiz')}</th>
+                {/* 퀴즈 컬럼 비활성화 */}
+                {/* <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">{t('chapters.quiz')}</th> */}
                 <th className="px-6 py-4 text-left text-[9px] font-medium uppercase tracking-[0.2em] text-taupe">{t('chapters.actions')}</th>
               </tr>
             </thead>
@@ -555,7 +558,8 @@ export default function ChapterManagement() {
                           {course?.title || t('chapters.noCourse')}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      {/* 퀴즈 컬럼 비활성화 */}
+                      {/* <td className="px-6 py-4">
                         {chapter.quiz ? (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.1em] text-botanical bg-botanical/10 rounded-full border border-botanical/20">
                             <CheckCircle className="w-3.5 h-3.5" />
@@ -564,7 +568,7 @@ export default function ChapterManagement() {
                         ) : (
                           <span className="text-[11px] text-taupe">{t('chapters.none')}</span>
                         )}
-                      </td>
+                      </td> */}
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                           <button

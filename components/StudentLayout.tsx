@@ -33,6 +33,7 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
 
   const navigation = [
     { name: t('nav.dashboard'), href: "/dashboard", icon: LayoutDashboard },
+    { name: t('nav.courses'), href: "/courses", icon: BookOpen },
     { name: t('nav.myProgress'), href: "/my-progress", icon: TrendingUp },
     { name: t('nav.myOrders'), href: "/my-orders", icon: ShoppingBag },
   ]
@@ -43,7 +44,7 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
       <header className="bg-white border-b border-[#E5E1D8] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <div className="w-10 h-10 rounded-full bg-[#4A5D4E] flex items-center justify-center">
                 <BookOpen className="w-5 h-5 text-white" />
               </div>
@@ -51,7 +52,7 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
                 <h1 className="font-bold text-lg text-[#2D241E]">AJU E&J</h1>
                 <p className="text-[9px] uppercase tracking-[0.2em] text-[#8C857E]">Korean Academy</p>
               </div>
-            </div>
+            </Link>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-2">
