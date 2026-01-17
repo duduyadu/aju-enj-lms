@@ -782,9 +782,9 @@ export default function ChaptersPage() {
                 );
 
                 return canAccess ? (
-                  <Link key={chapter.id} href={`/learn/${chapter.id}`} className="block">
+                  <a key={chapter.id} href={`/learn/${chapter.id}/`} className="block">
                     {ChapterContent}
-                  </Link>
+                  </a>
                 ) : (
                   <div
                     key={chapter.id}

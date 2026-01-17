@@ -128,36 +128,36 @@ export default function EnrolledCourseCard({
 
         <div className="mt-4 flex gap-2">
           {isExpired ? (
-            <Link
-              href={`/courses/${course.id}`}
+            <a
+              href={`/courses/${course.id}/`}
               className="flex-1 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg font-medium text-sm text-center hover:from-amber-600 hover:to-orange-600 transition-colors"
             >
               {t('dashboard.extend')}
-            </Link>
+            </a>
           ) : subscription.status === 'READY' ? (
-            <Link
-              href={`/courses/${course.id}`}
+            <a
+              href={`/courses/${course.id}/`}
               className="flex-1 py-2.5 bg-[#4A5D4E] text-white rounded-lg font-medium text-sm text-center hover:bg-[#3a4a3e] transition-colors flex items-center justify-center gap-1"
             >
               <Play className="w-4 h-4" />
               {t('dashboard.start')}
-            </Link>
+            </a>
           ) : (
-            <Link
-              href={`/learn/${getLastChapterId(progressData, course.id)}`}
+            <a
+              href={`/learn/${getLastChapterId(progressData, course.id)}/`}
               className="flex-1 py-2.5 bg-[#4A5D4E] text-white rounded-lg font-medium text-sm text-center hover:bg-[#3a4a3e] transition-colors flex items-center justify-center gap-1"
             >
               <Play className="w-4 h-4" />
               {t('dashboard.continue')}
-            </Link>
+            </a>
           )}
 
-          <Link
-            href={`/courses/${course.id}`}
+          <a
+            href={`/courses/${course.id}/`}
             className="px-3 py-2.5 bg-[#F5F3ED] text-[#2D241E] rounded-lg hover:bg-[#E5E1D8] transition-colors"
           >
             <ChevronRight className="w-5 h-5" />
-          </Link>
+          </a>
         </div>
       </div>
     </div>

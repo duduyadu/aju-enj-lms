@@ -100,13 +100,13 @@ export default function CoursesPage() {
                     {course.description}
                   </p>
 
-                  <Link
-                    href={`/courses/${course.id}`}
+                  <a
+                    href={`/courses/${course.id}/`}
                     className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#4A5D4E] text-white rounded-lg hover:bg-[#3a4a3e] transition-colors text-sm font-medium"
                   >
                     {t('courses.viewCourse')}
                     <ChevronRight className="w-4 h-4" />
-                  </Link>
+                  </a>
                 </div>
               </div>
             ))}

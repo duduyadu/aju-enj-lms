@@ -168,21 +168,21 @@ export default function FeaturedCourseSlider({ courses }: FeaturedCourseSliderPr
 
                         <div className="flex gap-2">
                           {firstChapter && (
-                            <Link
-                              href={`/courses/${course.id}`}
+                            <a
+                              href={`/courses/${course.id}/`}
                               className="flex items-center gap-1 px-3 py-2 bg-[#F5F3ED] text-[#2D241E] rounded-lg text-sm font-medium hover:bg-[#E5E1D8] transition-colors"
                             >
                               <Play className="w-4 h-4" />
                               {t('dashboard.preview')}
-                            </Link>
+                            </a>
                           )}
-                          <Link
-                            href={`/courses/${course.id}`}
+                          <a
+                            href={`/courses/${course.id}/`}
                             className="flex items-center gap-1 px-4 py-2 bg-[#4A5D4E] text-white rounded-lg text-sm font-medium hover:bg-[#3a4a3e] transition-colors"
                           >
                             {t('dashboard.enroll')}
                             <ArrowRight className="w-4 h-4" />
-                          </Link>
+                          </a>
                         </div>
                       </div>
                     </div>
