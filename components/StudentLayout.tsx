@@ -10,6 +10,7 @@ import { signOut } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 import { useRouter } from "next/navigation"
 import LanguageToggle from "@/components/LanguageToggle"
+import NotificationBell from "@/components/NotificationBell"
 
 interface StudentLayoutProps {
   children: ReactNode
@@ -72,8 +73,9 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
             </nav>
 
             {/* User Menu */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <LanguageToggle />
+              <NotificationBell />
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-[#F5F3ED] rounded-lg">
                 <User className="w-4 h-4 text-[#8C857E]" />
                 <span className="text-sm text-[#2D241E]">{userData?.name}</span>

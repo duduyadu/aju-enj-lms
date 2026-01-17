@@ -81,6 +81,43 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // 주문 컬렉션 (무통장 입금)
+    match /orders/{orderId} {
+      // 자신의 주문만 읽기 가능, 관리자는 모두 읽기 가능
+      allow read: if (isAuthenticated() && resource.data.uid == request.auth.uid) || isAdmin();
+
+      // 자신의 주문 생성 가능
+      allow create: if isAuthenticated() &&
+                      request.resource.data.uid == request.auth.uid;
+
+      // 자신의 주문에 대해 입금확인 요청만 가능 (depositConfirmed, depositConfirmedAt 필드만)
+      // 관리자는 모든 필드 수정 가능 (승인/취소)
+      allow update: if isAdmin() ||
+                      (isAuthenticated() &&
+                       resource.data.uid == request.auth.uid &&
+                       request.resource.data.diff(resource.data).affectedKeys().hasOnly(['depositConfirmed', 'depositConfirmedAt']));
+
+      // 삭제 불가 (기록 보존)
+      allow delete: if false;
+    }
+
+    // 알림 컬렉션
+    match /notifications/{notificationId} {
+      // 자신의 알림만 읽기 가능
+      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+
+      // 알림 생성은 인증된 사용자 가능 (본인 또는 관리자가 타인에게)
+      allow create: if isAuthenticated();
+
+      // 자신의 알림 읽음 처리만 가능 (isRead 필드만)
+      allow update: if isAuthenticated() &&
+                      resource.data.uid == request.auth.uid &&
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']);
+
+      // 삭제는 관리자만 가능
+      allow delete: if isAdmin();
+    }
+
     // 기본 규칙: 모든 다른 문서는 접근 불가
     match /{document=**} {
       allow read, write: if false;

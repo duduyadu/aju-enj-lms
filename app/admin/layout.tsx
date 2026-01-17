@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useRouter } from 'next/navigation';
 import LanguageToggle from '@/components/LanguageToggle';
+import NotificationBell from '@/components/NotificationBell';
 import {
   LayoutDashboard,
   Users,
@@ -16,7 +17,8 @@ import {
   BarChart3,
   LogOut,
   Settings,
-  ArrowLeft
+  ArrowLeft,
+  Wallet
 } from 'lucide-react';
 
 export default function AdminLayout({
@@ -40,6 +42,7 @@ export default function AdminLayout({
 
   const menuItems = [
     { href: '/admin', label: t('adminNav.dashboard'), labelEn: 'Dashboard', icon: LayoutDashboard },
+    { href: '/admin/orders', label: t('adminNav.orders') || '주문 관리', labelEn: 'Orders', icon: Wallet },
     { href: '/admin/students', label: t('adminNav.students'), labelEn: 'Students', icon: Users },
     { href: '/admin/courses', label: t('adminNav.courses'), labelEn: 'Courses', icon: BookOpen },
     { href: '/admin/chapters-v2', label: t('adminNav.chaptersSimple'), labelEn: 'Chapters', icon: Video },
@@ -69,6 +72,9 @@ export default function AdminLayout({
               </div>
               <div className="flex items-center gap-4">
                 <LanguageToggle />
+                <div className="[&_button]:text-porcelain [&_.text-\[\#2D241E\]]:text-porcelain">
+                  <NotificationBell />
+                </div>
                 <Link
                   href="/dashboard"
                   className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-porcelain/70 hover:text-porcelain transition-colors"
