@@ -46,11 +46,19 @@
     ],
     "rewrites": [
       {
-        "source": "/courses/**/",
+        "source": "/courses/*/",
         "destination": "/courses/[courseId]/index.html"
       },
       {
-        "source": "/learn/**/",
+        "source": "/courses/*",
+        "destination": "/courses/[courseId]/index.html"
+      },
+      {
+        "source": "/learn/*/",
+        "destination": "/learn/[chapterId]/index.html"
+      },
+      {
+        "source": "/learn/*",
         "destination": "/learn/[chapterId]/index.html"
       },
       {

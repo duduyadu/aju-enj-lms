@@ -231,6 +231,19 @@ export default function CourseManagement() {
                 className="w-full px-5 py-4 bg-porcelain border border-museum-border rounded-2xl text-espresso placeholder:text-taupe/50 focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all"
                 placeholder="https://example.com/image.jpg"
               />
+              {formData.thumbnail && (
+                <div className="mt-3 p-3 bg-porcelain rounded-xl border border-museum-border">
+                  <p className="text-[9px] uppercase tracking-[0.2em] text-taupe mb-2">미리보기 / Preview</p>
+                  <img
+                    src={formData.thumbnail}
+                    alt="Thumbnail preview"
+                    className="w-full max-w-xs h-32 object-cover rounded-lg"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -341,9 +354,26 @@ export default function CourseManagement() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div>
-                        <div className="font-medium text-espresso mb-1">{course.title}</div>
-                        <div className="text-[11px] text-taupe line-clamp-2">{course.description}</div>
+                      <div className="flex items-center gap-4">
+                        {course.thumbnail ? (
+                          <img
+                            src={course.thumbnail}
+                            alt={course.title}
+                            className="w-20 h-14 object-cover rounded-lg border border-museum-border flex-shrink-0"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = '';
+                              (e.target as HTMLImageElement).className = 'w-20 h-14 bg-porcelain rounded-lg border border-museum-border flex-shrink-0 flex items-center justify-center';
+                            }}
+                          />
+                        ) : (
+                          <div className="w-20 h-14 bg-porcelain rounded-lg border border-museum-border flex-shrink-0 flex items-center justify-center">
+                            <Image className="w-6 h-6 text-taupe/40" />
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <div className="font-medium text-espresso mb-1">{course.title}</div>
+                          <div className="text-[11px] text-taupe line-clamp-2">{course.description}</div>
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
