@@ -4,6 +4,20 @@ export type OrderStatus = 'PENDING_PAYMENT' | 'PAID' | 'CANCELLED';
 // 구독 상태
 export type SubscriptionStatusType = 'READY' | 'ACTIVE' | 'EXPIRED';
 
+// 배송 상태
+export type DeliveryStatus = 'PREPARING' | 'SHIPPED' | 'DELIVERED';
+
+// 택배사 (나중에 추가 가능하도록 설계)
+export type TrackingCarrier = 'GHTK' | 'VIETTEL_POST' | 'VNPOST' | 'OTHER';
+
+// 택배사별 추적 URL (나중에 추가 가능)
+export const TRACKING_URLS: Record<TrackingCarrier, string> = {
+  GHTK: 'https://tracking.ghtk.vn?code=',
+  VIETTEL_POST: 'https://viettelpost.vn/tra-cuu?code=',
+  VNPOST: 'https://vnpost.vn/vi-vn/tra-cuu?code=',
+  OTHER: '',
+};
+
 // 배송지 정보 (베트남 주소 체계)
 export interface ShippingAddress {
   recipientName: string;      // 수취인명 (Tên người nhận)
@@ -33,6 +47,13 @@ export interface Order {
   hasTextbook: boolean;       // 교재 구매 여부
   textbookAmount?: number;    // 교재 금액
   shippingAddress?: ShippingAddress; // 배송지 정보
+
+  // 배송 추적 정보 (관리자가 입력)
+  trackingNumber?: string;    // 운송장 번호
+  trackingCarrier?: TrackingCarrier; // 택배사
+  deliveryStatus?: DeliveryStatus;   // 배송 상태
+  shippedAt?: Date;           // 발송일
+  deliveredAt?: Date;         // 배송완료일
 
   // 입금 확인 요청
   depositConfirmed?: boolean; // 유저가 입금 완료 버튼 눌렀는지
@@ -77,6 +98,9 @@ export interface User {
   subscriptionEndDate?: Date;    // 구독 만료일
   subscriptionMonths?: number;   // 구독 기간 (개월 수)
 
+  // 저장된 배송지 (재주문 시 자동 불러오기)
+  savedShippingAddress?: ShippingAddress;
+
   createdAt: Date;            // 가입일
   updatedAt: Date;            // 마지막 수정일
 }
@@ -106,6 +130,11 @@ export interface Course {
   order: number;              // 정렬 순서
   pricing?: CoursePricing;    // 가격 정보
   textbookInfo?: TextbookInfo; // 교재 정보
+
+  // 추천 코스 및 통계
+  isFeatured?: boolean;       // 추천 코스 여부 (관리자 지정)
+  studentCount?: number;      // 수강생 수 (수동 입력 또는 자동 집계)
+
   createdAt: Date;            // 생성일
   updatedAt: Date;            // 마지막 수정일
 }
@@ -188,3 +217,19 @@ export interface Notification {
   };
   createdAt: Date;            // 생성일
 }
+
+// === 설정 상수 (나중에 쉽게 수정 가능) ===
+
+// Zalo 연락처 (나중에 실제 번호로 교체)
+export const ZALO_CONFIG = {
+  phoneNumber: '0901234567',  // TODO: 실제 Zalo 번호로 교체
+  getUrl: () => `https://zalo.me/${ZALO_CONFIG.phoneNumber}`,
+};
+
+// 학습 인정 기준 (분)
+export const STUDY_CONFIG = {
+  minStudyMinutes: 10,  // 최소 10분 이상 학습해야 "학습한 날"로 인정
+};
+
+// 만료 경고 기준 (일)
+export const EXPIRY_WARNING_DAYS = 7;
