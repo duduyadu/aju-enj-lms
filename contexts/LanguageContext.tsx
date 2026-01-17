@@ -462,12 +462,21 @@ const translations: Record<Language, Record<string, string>> = {
 
     // 관리자 네비게이션
     'adminNav.adminPanel': '관리자 패널',
+    'adminNav.navigation': '메뉴',
     'adminNav.dashboard': '대시보드',
+    'adminNav.dashboardSub': '대시보드',
+    'adminNav.orders': '주문 관리',
+    'adminNav.ordersSub': '주문',
     'adminNav.students': '학생 관리',
+    'adminNav.studentsSub': '학생',
     'adminNav.courses': '코스 관리',
+    'adminNav.coursesSub': '코스',
     'adminNav.chaptersSimple': '챕터 관리 (간편)',
+    'adminNav.chaptersSub': '챕터',
     'adminNav.chaptersDetail': '챕터 관리 (상세)',
+    'adminNav.chaptersDetailSub': '챕터 상세',
     'adminNav.grades': '성적 조회',
+    'adminNav.gradesSub': '성적',
     'adminNav.studentView': '학생 화면',
 
     // 구독 관리
@@ -982,13 +991,22 @@ const translations: Record<Language, Record<string, string>> = {
     'students.searchPlaceholder': 'Tìm theo tên hoặc email...',
 
     // 관리자 네비게이션
-    'adminNav.adminPanel': 'Admin Panel',
-    'adminNav.dashboard': 'Dashboard',
+    'adminNav.adminPanel': 'Bảng quản trị',
+    'adminNav.navigation': 'Menu',
+    'adminNav.dashboard': 'Bảng điều khiển',
+    'adminNav.dashboardSub': 'Tổng quan',
+    'adminNav.orders': 'Quản lý đơn hàng',
+    'adminNav.ordersSub': 'Đơn hàng',
     'adminNav.students': 'Quản lý Học sinh',
+    'adminNav.studentsSub': 'Học sinh',
     'adminNav.courses': 'Quản lý Khóa học',
+    'adminNav.coursesSub': 'Khóa học',
     'adminNav.chaptersSimple': 'Quản lý Chương (Đơn giản)',
+    'adminNav.chaptersSub': 'Chương',
     'adminNav.chaptersDetail': 'Quản lý Chương (Chi tiết)',
+    'adminNav.chaptersDetailSub': 'Chi tiết chương',
     'adminNav.grades': 'Xem Điểm',
+    'adminNav.gradesSub': 'Điểm số',
     'adminNav.studentView': 'Giao diện Học sinh',
 
     // 구독 관리

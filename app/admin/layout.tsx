@@ -41,13 +41,13 @@ export default function AdminLayout({
   };
 
   const menuItems = [
-    { href: '/admin', label: t('adminNav.dashboard'), labelEn: 'Dashboard', icon: LayoutDashboard },
-    { href: '/admin/orders', label: t('adminNav.orders') || '주문 관리', labelEn: 'Orders', icon: Wallet },
-    { href: '/admin/students', label: t('adminNav.students'), labelEn: 'Students', icon: Users },
-    { href: '/admin/courses', label: t('adminNav.courses'), labelEn: 'Courses', icon: BookOpen },
-    { href: '/admin/chapters-v2', label: t('adminNav.chaptersSimple'), labelEn: 'Chapters', icon: Video },
-    { href: '/admin/chapters', label: t('adminNav.chaptersDetail'), labelEn: 'Chapters Detail', icon: FileVideo },
-    { href: '/admin/grades', label: t('adminNav.grades'), labelEn: 'Grades', icon: BarChart3 },
+    { href: '/admin', label: t('adminNav.dashboard'), labelSub: t('adminNav.dashboardSub'), icon: LayoutDashboard },
+    { href: '/admin/orders', label: t('adminNav.orders'), labelSub: t('adminNav.ordersSub'), icon: Wallet },
+    { href: '/admin/students', label: t('adminNav.students'), labelSub: t('adminNav.studentsSub'), icon: Users },
+    { href: '/admin/courses', label: t('adminNav.courses'), labelSub: t('adminNav.coursesSub'), icon: BookOpen },
+    { href: '/admin/chapters-v2', label: t('adminNav.chaptersSimple'), labelSub: t('adminNav.chaptersSub'), icon: Video },
+    { href: '/admin/chapters', label: t('adminNav.chaptersDetail'), labelSub: t('adminNav.chaptersDetailSub'), icon: FileVideo },
+    { href: '/admin/grades', label: t('adminNav.grades'), labelSub: t('adminNav.gradesSub'), icon: BarChart3 },
   ];
 
   return (
@@ -99,7 +99,7 @@ export default function AdminLayout({
           <nav className="w-full sm:w-72 bg-white border-r border-museum-border min-h-[calc(100vh-4rem)] relative z-10">
             <div className="p-6">
               <span className="text-[9px] uppercase tracking-[0.3em] text-taupe block mb-4">
-                Navigation
+                {t('adminNav.navigation')}
               </span>
               <div className="space-y-2">
                 {menuItems.map((item) => {
@@ -119,7 +119,7 @@ export default function AdminLayout({
                       <div>
                         <span className="font-medium text-sm block">{item.label}</span>
                         <span className={`text-[9px] uppercase tracking-[0.15em] ${isActive ? 'text-porcelain/70' : 'text-taupe'}`}>
-                          {item.labelEn}
+                          {item.labelSub}
                         </span>
                       </div>
                     </Link>
