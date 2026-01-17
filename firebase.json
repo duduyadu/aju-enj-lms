@@ -47,19 +47,19 @@
     "rewrites": [
       {
         "source": "/courses/*/",
-        "destination": "/courses/[courseId]/index.html"
+        "destination": "/courses/dummy/index.html"
       },
       {
         "source": "/courses/*",
-        "destination": "/courses/[courseId]/index.html"
+        "destination": "/courses/dummy/index.html"
       },
       {
         "source": "/learn/*/",
-        "destination": "/learn/[chapterId]/index.html"
+        "destination": "/learn/dummy/index.html"
       },
       {
         "source": "/learn/*",
-        "destination": "/learn/[chapterId]/index.html"
+        "destination": "/learn/dummy/index.html"
       },
       {
         "source": "**",
