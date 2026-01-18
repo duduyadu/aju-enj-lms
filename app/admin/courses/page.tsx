@@ -19,7 +19,9 @@ import {
   Hash,
   ToggleLeft,
   Save,
-  DollarSign
+  DollarSign,
+  Package,
+  BookMarked
 } from 'lucide-react';
 
 export default function CourseManagement() {
@@ -39,7 +41,14 @@ export default function CourseManagement() {
       months3: 0,
       months6: 0,
       months12: 0
-    }
+    },
+    textbookInfo: {
+      name: '',
+      price: 0,
+      imageUrl: '',
+      description: ''
+    },
+    hasTextbook: false
   });
 
   useEffect(() => {
@@ -70,17 +79,35 @@ export default function CourseManagement() {
     setLoading(true);
 
     try {
+      // 저장할 데이터 준비 (교재 정보는 활성화된 경우에만 포함)
+      const dataToSave = {
+        title: formData.title,
+        description: formData.description,
+        thumbnail: formData.thumbnail,
+        isActive: formData.isActive,
+        order: formData.order,
+        pricing: formData.pricing,
+        ...(formData.hasTextbook && formData.textbookInfo.name ? {
+          textbookInfo: {
+            name: formData.textbookInfo.name,
+            price: formData.textbookInfo.price,
+            imageUrl: formData.textbookInfo.imageUrl || '',
+            description: formData.textbookInfo.description || ''
+          }
+        } : { textbookInfo: null })
+      };
+
       if (editingCourse) {
         // 수정
         await updateDoc(doc(db, 'courses', editingCourse.id), {
-          ...formData,
+          ...dataToSave,
           updatedAt: serverTimestamp()
         });
         alert(t('courses.courseUpdated'));
       } else {
         // 추가
         await addDoc(collection(db, 'courses'), {
-          ...formData,
+          ...dataToSave,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp()
         });
@@ -99,7 +126,14 @@ export default function CourseManagement() {
           months3: 0,
           months6: 0,
           months12: 0
-        }
+        },
+        textbookInfo: {
+          name: '',
+          price: 0,
+          imageUrl: '',
+          description: ''
+        },
+        hasTextbook: false
       });
       setShowForm(false);
       setEditingCourse(null);
@@ -125,7 +159,14 @@ export default function CourseManagement() {
         months3: course.pricing?.months3 || 0,
         months6: course.pricing?.months6 || 0,
         months12: course.pricing?.months12 || 0
-      }
+      },
+      textbookInfo: {
+        name: course.textbookInfo?.name || '',
+        price: course.textbookInfo?.price || 0,
+        imageUrl: course.textbookInfo?.imageUrl || '',
+        description: course.textbookInfo?.description || ''
+      },
+      hasTextbook: !!course.textbookInfo?.name
     });
     setShowForm(true);
   };
@@ -175,7 +216,14 @@ export default function CourseManagement() {
                 months3: 0,
                 months6: 0,
                 months12: 0
-              }
+              },
+              textbookInfo: {
+                name: '',
+                price: 0,
+                imageUrl: '',
+                description: ''
+              },
+              hasTextbook: false
             });
           }}
           className="inline-flex items-center gap-2 px-5 py-3 bg-botanical text-porcelain rounded-full text-[11px] uppercase tracking-[0.15em] font-medium hover:scale-[1.02] transition-all duration-300 shadow-museum"
@@ -355,6 +403,114 @@ export default function CourseManagement() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* 교재 설정 섹션 */}
+            <div className="border-t border-museum-border pt-6">
+              <div className="flex items-center justify-between mb-4">
+                <label className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-taupe">
+                  <BookMarked className="w-3.5 h-3.5" />
+                  {t('courses.textbookSettings')}
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.hasTextbook}
+                    onChange={(e) => setFormData({ ...formData, hasTextbook: e.target.checked })}
+                    className="w-4 h-4 rounded border-museum-border text-botanical focus:ring-botanical/30"
+                  />
+                  <span className="text-[11px] text-espresso">{t('courses.enableTextbook')}</span>
+                </label>
+              </div>
+
+              {formData.hasTextbook && (
+                <div className="space-y-4 p-4 bg-porcelain/50 rounded-xl border border-museum-border">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[9px] uppercase tracking-[0.2em] text-taupe mb-2">
+                        {t('courses.textbookName')} <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.textbookInfo.name}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          textbookInfo: { ...formData.textbookInfo, name: e.target.value }
+                        })}
+                        className="w-full px-4 py-3 bg-white border border-museum-border rounded-xl text-espresso focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all"
+                        placeholder={t('courses.textbookNamePlaceholder')}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[9px] uppercase tracking-[0.2em] text-taupe mb-2">
+                        {t('courses.textbookPrice')} <span className="text-red-400">*</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          value={formData.textbookInfo.price}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            textbookInfo: { ...formData.textbookInfo, price: parseInt(e.target.value) || 0 }
+                          })}
+                          className="w-full px-4 py-3 bg-white border border-museum-border rounded-xl text-espresso focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all pr-12"
+                          min="0"
+                          placeholder="0"
+                        />
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-taupe">VND</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[9px] uppercase tracking-[0.2em] text-taupe mb-2">
+                      {t('courses.textbookImage')} <span className="text-taupe/50">({t('chapters.optional')})</span>
+                    </label>
+                    <input
+                      type="url"
+                      value={formData.textbookInfo.imageUrl}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        textbookInfo: { ...formData.textbookInfo, imageUrl: e.target.value }
+                      })}
+                      className="w-full px-4 py-3 bg-white border border-museum-border rounded-xl text-espresso focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all"
+                      placeholder="https://example.com/textbook-image.jpg"
+                    />
+                    {formData.textbookInfo.imageUrl && (
+                      <div className="mt-2">
+                        <img
+                          src={formData.textbookInfo.imageUrl}
+                          alt="Textbook preview"
+                          className="w-24 h-32 object-cover rounded-lg border border-museum-border"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-[9px] uppercase tracking-[0.2em] text-taupe mb-2">
+                      {t('courses.textbookDescription')} <span className="text-taupe/50">({t('chapters.optional')})</span>
+                    </label>
+                    <textarea
+                      value={formData.textbookInfo.description}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        textbookInfo: { ...formData.textbookInfo, description: e.target.value }
+                      })}
+                      className="w-full px-4 py-3 bg-white border border-museum-border rounded-xl text-espresso focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all resize-none"
+                      rows={2}
+                      placeholder={t('courses.textbookDescPlaceholder')}
+                    />
+                  </div>
+                  <div className="flex items-start gap-2 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                    <Package className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-amber-700">
+                      {t('courses.textbookNote')}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">

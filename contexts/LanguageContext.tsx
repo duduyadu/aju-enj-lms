@@ -417,6 +417,15 @@ const translations: Record<Language, Record<string, string>> = {
     'courses.price3Months': '3개월',
     'courses.price6Months': '6개월',
     'courses.price12Months': '12개월',
+    'courses.textbookSettings': '교재 설정',
+    'courses.enableTextbook': '교재 판매 활성화',
+    'courses.textbookName': '교재명',
+    'courses.textbookNamePlaceholder': '예: TOPIK 한국어 초급',
+    'courses.textbookPrice': '교재 가격',
+    'courses.textbookImage': '교재 이미지 URL',
+    'courses.textbookDescription': '교재 설명',
+    'courses.textbookDescPlaceholder': '교재에 대한 간단한 설명을 입력하세요',
+    'courses.textbookNote': '교재를 활성화하면 학생들이 강의 구매 시 교재를 함께 구매할 수 있습니다. 배송지 정보는 주문 시 수집됩니다.',
 
     // 성적 관리
     'grades.title': '성적 관리',
@@ -1041,6 +1050,15 @@ const translations: Record<Language, Record<string, string>> = {
     'courses.price3Months': '3 tháng',
     'courses.price6Months': '6 tháng',
     'courses.price12Months': '12 tháng',
+    'courses.textbookSettings': 'Cài đặt giáo trình',
+    'courses.enableTextbook': 'Bật bán giáo trình',
+    'courses.textbookName': 'Tên giáo trình',
+    'courses.textbookNamePlaceholder': 'VD: Tiếng Hàn TOPIK sơ cấp',
+    'courses.textbookPrice': 'Giá giáo trình',
+    'courses.textbookImage': 'URL hình ảnh giáo trình',
+    'courses.textbookDescription': 'Mô tả giáo trình',
+    'courses.textbookDescPlaceholder': 'Nhập mô tả ngắn về giáo trình',
+    'courses.textbookNote': 'Khi bật giáo trình, học viên có thể mua giáo trình cùng với khóa học. Thông tin giao hàng sẽ được thu thập khi đặt hàng.',
 
     // 성적 관리
     'grades.title': 'Quản lý Điểm',
