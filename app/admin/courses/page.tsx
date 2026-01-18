@@ -18,7 +18,8 @@ import {
   FileText,
   Hash,
   ToggleLeft,
-  Save
+  Save,
+  DollarSign
 } from 'lucide-react';
 
 export default function CourseManagement() {
@@ -32,7 +33,13 @@ export default function CourseManagement() {
     description: '',
     thumbnail: '',
     isActive: true,
-    order: 1
+    order: 1,
+    pricing: {
+      months1: 0,
+      months3: 0,
+      months6: 0,
+      months12: 0
+    }
   });
 
   useEffect(() => {
@@ -86,7 +93,13 @@ export default function CourseManagement() {
         description: '',
         thumbnail: '',
         isActive: true,
-        order: courses.length + 1
+        order: courses.length + 1,
+        pricing: {
+          months1: 0,
+          months3: 0,
+          months6: 0,
+          months12: 0
+        }
       });
       setShowForm(false);
       setEditingCourse(null);
@@ -106,7 +119,13 @@ export default function CourseManagement() {
       description: course.description,
       thumbnail: course.thumbnail || '',
       isActive: course.isActive,
-      order: course.order
+      order: course.order,
+      pricing: {
+        months1: course.pricing?.months1 || 0,
+        months3: course.pricing?.months3 || 0,
+        months6: course.pricing?.months6 || 0,
+        months12: course.pricing?.months12 || 0
+      }
     });
     setShowForm(true);
   };
@@ -150,7 +169,13 @@ export default function CourseManagement() {
               description: '',
               thumbnail: '',
               isActive: true,
-              order: courses.length + 1
+              order: courses.length + 1,
+              pricing: {
+                months1: 0,
+                months3: 0,
+                months6: 0,
+                months12: 0
+              }
             });
           }}
           className="inline-flex items-center gap-2 px-5 py-3 bg-botanical text-porcelain rounded-full text-[11px] uppercase tracking-[0.15em] font-medium hover:scale-[1.02] transition-all duration-300 shadow-museum"
@@ -244,6 +269,92 @@ export default function CourseManagement() {
                   />
                 </div>
               )}
+            </div>
+
+            {/* 가격 설정 섹션 */}
+            <div className="border-t border-museum-border pt-6">
+              <label className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-taupe mb-4">
+                <DollarSign className="w-3.5 h-3.5" />
+                {t('courses.pricingSettings')}
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-[9px] uppercase tracking-[0.2em] text-taupe mb-2">
+                    {t('courses.price1Month')}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      value={formData.pricing.months1}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        pricing: { ...formData.pricing, months1: parseInt(e.target.value) || 0 }
+                      })}
+                      className="w-full px-4 py-3 bg-porcelain border border-museum-border rounded-xl text-espresso focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all pr-12"
+                      min="0"
+                      placeholder="0"
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-taupe">VND</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[9px] uppercase tracking-[0.2em] text-taupe mb-2">
+                    {t('courses.price3Months')}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      value={formData.pricing.months3}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        pricing: { ...formData.pricing, months3: parseInt(e.target.value) || 0 }
+                      })}
+                      className="w-full px-4 py-3 bg-porcelain border border-museum-border rounded-xl text-espresso focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all pr-12"
+                      min="0"
+                      placeholder="0"
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-taupe">VND</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[9px] uppercase tracking-[0.2em] text-taupe mb-2">
+                    {t('courses.price6Months')}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      value={formData.pricing.months6}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        pricing: { ...formData.pricing, months6: parseInt(e.target.value) || 0 }
+                      })}
+                      className="w-full px-4 py-3 bg-porcelain border border-museum-border rounded-xl text-espresso focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all pr-12"
+                      min="0"
+                      placeholder="0"
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-taupe">VND</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[9px] uppercase tracking-[0.2em] text-taupe mb-2">
+                    {t('courses.price12Months')}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      value={formData.pricing.months12}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        pricing: { ...formData.pricing, months12: parseInt(e.target.value) || 0 }
+                      })}
+                      className="w-full px-4 py-3 bg-porcelain border border-museum-border rounded-xl text-espresso focus:outline-none focus:ring-2 focus:ring-botanical/30 focus:border-botanical transition-all pr-12"
+                      min="0"
+                      placeholder="0"
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-taupe">VND</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

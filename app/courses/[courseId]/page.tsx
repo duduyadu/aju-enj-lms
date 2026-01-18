@@ -73,6 +73,7 @@ type SubscriptionState = 'NONE' | 'PENDING_PAYMENT' | 'READY' | 'ACTIVE' | 'EXPI
 
 // 기본 가격 (가격 정보가 없을 때)
 const DEFAULT_PRICES = {
+  months1: 120000,
   months3: 300000,
   months6: 500000,
   months12: 800000,
@@ -117,7 +118,7 @@ export default function ChaptersPage() {
 
   // 결제 모달 상태
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [selectedMonths, setSelectedMonths] = useState<3 | 6 | 12>(3);
+  const [selectedMonths, setSelectedMonths] = useState<1 | 3 | 6 | 12>(1);
   const [depositorName, setDepositorName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [copiedAccount, setCopiedAccount] = useState(false);
@@ -227,9 +228,10 @@ export default function ChaptersPage() {
   const subscriptionState = getSubscriptionState();
 
   // 가격 계산
-  const getCoursePrice = (months: 3 | 6 | 12): number => {
+  const getCoursePrice = (months: 1 | 3 | 6 | 12): number => {
     const pricing = course?.pricing || DEFAULT_PRICES;
     switch (months) {
+      case 1: return pricing.months1;
       case 3: return pricing.months3;
       case 6: return pricing.months6;
       case 12: return pricing.months12;
@@ -242,7 +244,7 @@ export default function ChaptersPage() {
   };
 
   // 총 결제 금액
-  const getTotalPrice = (months: 3 | 6 | 12): number => {
+  const getTotalPrice = (months: 1 | 3 | 6 | 12): number => {
     const coursePrice = getCoursePrice(months);
     const textbookPrice = includeTextbook ? getTextbookPrice() : 0;
     return coursePrice + textbookPrice;
@@ -476,33 +478,33 @@ export default function ChaptersPage() {
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-[#92400E]">
-                      Đang chờ xác nhận thanh toán / 입금 확인 대기 중
+                      {t('paymentModal.waitingPayment')}
                     </h3>
                     {pendingOrder.depositConfirmed && (
                       <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full flex items-center gap-1">
                         <CheckCircle className="w-3 h-3" />
-                        Đã gửi yêu cầu / 확인 요청됨
+                        {t('paymentModal.confirmSent')}
                       </span>
                     )}
                   </div>
                   <div className="bg-white rounded-lg p-4 mb-3">
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
-                        <span className="text-[#8C857E]">Số tiền / 입금 금액:</span>
+                        <span className="text-[#8C857E]">{t('paymentModal.depositAmount')}:</span>
                         <span className="ml-2 font-semibold text-[#2D241E]">
-                          {pendingOrder.amount.toLocaleString()}원
+                          {pendingOrder.amount.toLocaleString()}₫
                         </span>
                       </div>
                       <div>
-                        <span className="text-[#8C857E]">Thời hạn / 수강 기간:</span>
-                        <span className="ml-2 font-semibold text-[#2D241E]">{pendingOrder.months} tháng/개월</span>
+                        <span className="text-[#8C857E]">{t('paymentModal.period')}:</span>
+                        <span className="ml-2 font-semibold text-[#2D241E]">{pendingOrder.months} {t('paymentModal.month')}</span>
                       </div>
                       <div>
-                        <span className="text-[#8C857E]">Người gửi / 입금자명:</span>
+                        <span className="text-[#8C857E]">{t('paymentModal.depositor')}:</span>
                         <span className="ml-2 font-semibold text-[#2D241E]">{pendingOrder.depositorName}</span>
                       </div>
                       <div>
-                        <span className="text-[#8C857E]">Ngày đăng ký / 신청일:</span>
+                        <span className="text-[#8C857E]">{t('paymentModal.applicationDate')}:</span>
                         <span className="ml-2 font-semibold text-[#2D241E]">
                           {pendingOrder.createdAt.toLocaleDateString()}
                         </span>
@@ -511,17 +513,17 @@ export default function ChaptersPage() {
                         <div className="col-span-2">
                           <span className="text-[#8C857E] flex items-center gap-1">
                             <Package className="w-3.5 h-3.5" />
-                            Giáo trình / 교재:
+                            {t('paymentModal.textbookPrice')}:
                           </span>
                           <span className="ml-2 font-semibold text-[#2D241E]">
-                            Có mua giáo trình / 교재 포함 ({pendingOrder.textbookAmount?.toLocaleString()}원)
+                            {t('paymentModal.textbookIncluded')} ({pendingOrder.textbookAmount?.toLocaleString()}₫)
                           </span>
                         </div>
                       )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-sm bg-white/50 rounded-lg p-3 mb-3">
-                    <span className="text-[#92400E]">Tài khoản / 입금 계좌:</span>
+                    <span className="text-[#92400E]">{t('paymentModal.depositAccount')}:</span>
                     <span className="font-mono font-semibold text-[#2D241E]">
                       {BANK_INFO.bankName} {BANK_INFO.accountNumber} ({BANK_INFO.accountHolder})
                     </span>
@@ -549,16 +551,14 @@ export default function ChaptersPage() {
                       ) : (
                         <>
                           <Send className="w-5 h-5" />
-                          Tôi đã chuyển khoản / 입금 완료했습니다
+                          {t('paymentModal.depositConfirm')}
                         </>
                       )}
                     </button>
                   )}
                   {pendingOrder.depositConfirmed && (
                     <p className="text-sm text-[#92400E] text-center">
-                      Quản trị viên sẽ xác nhận trong 1-2 ngày làm việc.
-                      <br />
-                      관리자가 영업일 기준 1-2일 내에 확인합니다.
+                      {t('paymentModal.adminConfirm')}
                     </p>
                   )}
                 </div>
@@ -845,7 +845,7 @@ export default function ChaptersPage() {
               {/* 모달 헤더 */}
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-[#2D241E]">
-                  Mua khóa học <span className="text-[#8C857E] font-normal text-base">/ 수강권 구매</span>
+                  {t('paymentModal.title')}
                 </h2>
                 <button
                   onClick={() => setShowPaymentModal(false)}
@@ -857,30 +857,30 @@ export default function ChaptersPage() {
 
               {/* 코스 정보 */}
               <div className="bg-[#F5F3ED] rounded-xl p-4 mb-6">
-                <p className="text-sm text-[#8C857E]">Khóa học đã chọn / 선택한 코스</p>
+                <p className="text-sm text-[#8C857E]">{t('paymentModal.selectedCourse')}</p>
                 <p className="font-semibold text-[#2D241E]">{course?.title}</p>
               </div>
 
               {/* 기간 선택 */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-[#2D241E] mb-3">
-                  Chọn thời hạn học <span className="text-[#8C857E] font-normal">/ 수강 기간 선택</span>
+                  {t('paymentModal.selectPeriod')}
                 </label>
-                <div className="grid grid-cols-3 gap-3">
-                  {([3, 6, 12] as const).map((months) => (
+                <div className="grid grid-cols-4 gap-2">
+                  {([1, 3, 6, 12] as const).map((months) => (
                     <button
                       key={months}
                       onClick={() => setSelectedMonths(months)}
-                      className={`p-4 rounded-xl border-2 transition-all ${
+                      className={`p-3 rounded-xl border-2 transition-all ${
                         selectedMonths === months
                           ? 'border-[#4A5D4E] bg-[#4A5D4E]/5'
                           : 'border-[#E5E1D8] hover:border-[#4A5D4E]/50'
                       }`}
                     >
-                      <div className="text-2xl font-bold text-[#2D241E]">{months}</div>
-                      <div className="text-xs text-[#8C857E]">tháng/개월</div>
-                      <div className="text-sm font-semibold text-[#4A5D4E] mt-2">
-                        {getCoursePrice(months).toLocaleString()}원
+                      <div className="text-xl font-bold text-[#2D241E]">{months}</div>
+                      <div className="text-xs text-[#8C857E]">{t('paymentModal.month')}</div>
+                      <div className="text-xs font-semibold text-[#4A5D4E] mt-1">
+                        {getCoursePrice(months).toLocaleString()}₫
                       </div>
                     </button>
                   ))}
@@ -891,7 +891,7 @@ export default function ChaptersPage() {
               {course?.textbookInfo && (
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-[#2D241E] mb-3">
-                    Giáo trình <span className="text-[#8C857E] font-normal">/ 교재 (선택)</span>
+                    {t('paymentModal.textbook')}
                   </label>
                   <TextbookSelector
                     textbook={course.textbookInfo}
@@ -915,13 +915,13 @@ export default function ChaptersPage() {
               {/* 입금자명 입력 */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-[#2D241E] mb-2">
-                  Tên người gửi tiền <span className="text-[#8C857E] font-normal">/ 입금자명</span>
+                  {t('paymentModal.depositorName')}
                 </label>
                 <input
                   type="text"
                   value={depositorName}
                   onChange={(e) => setDepositorName(e.target.value)}
-                  placeholder="Nhập tên người gửi tiền / 입금자명을 입력해주세요"
+                  placeholder={t('paymentModal.depositorPlaceholder')}
                   className="w-full px-4 py-3 bg-[#F5F3ED] rounded-xl text-[#2D241E] placeholder:text-[#8C857E] focus:outline-none focus:ring-2 focus:ring-[#4A5D4E]/30"
                 />
               </div>
@@ -929,14 +929,14 @@ export default function ChaptersPage() {
               {/* 입금 계좌 정보 */}
               <div className="bg-[#4A5D4E]/5 border border-[#4A5D4E]/20 rounded-xl p-4 mb-6">
                 <p className="text-sm font-medium text-[#4A5D4E] mb-2">
-                  Tài khoản ngân hàng / 입금 계좌
+                  {t('paymentModal.bankAccount')}
                 </p>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-mono font-semibold text-[#2D241E]">
                       {BANK_INFO.bankName} {BANK_INFO.accountNumber}
                     </p>
-                    <p className="text-sm text-[#8C857E]">Chủ TK / 예금주: {BANK_INFO.accountHolder}</p>
+                    <p className="text-sm text-[#8C857E]">{t('paymentModal.accountHolder')}: {BANK_INFO.accountHolder}</p>
                   </div>
                   <button
                     onClick={copyAccountNumber}
@@ -954,19 +954,19 @@ export default function ChaptersPage() {
               {/* 결제 금액 내역 */}
               <div className="border-t border-[#E5E1D8] pt-4 mb-6 space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-[#8C857E]">Khóa học / 강의 ({selectedMonths} tháng/개월)</span>
-                  <span className="text-[#2D241E]">{getCoursePrice(selectedMonths).toLocaleString()}원</span>
+                  <span className="text-[#8C857E]">{t('paymentModal.coursePrice')} ({selectedMonths} {t('paymentModal.month')})</span>
+                  <span className="text-[#2D241E]">{getCoursePrice(selectedMonths).toLocaleString()}₫</span>
                 </div>
                 {includeTextbook && (
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-[#8C857E]">Giáo trình / 교재</span>
-                    <span className="text-[#2D241E]">{getTextbookPrice().toLocaleString()}원</span>
+                    <span className="text-[#8C857E]">{t('paymentModal.textbookPrice')}</span>
+                    <span className="text-[#2D241E]">{getTextbookPrice().toLocaleString()}₫</span>
                   </div>
                 )}
                 <div className="flex items-center justify-between pt-2 border-t border-[#E5E1D8]">
-                  <span className="font-medium text-[#2D241E]">Tổng cộng / 총 결제 금액</span>
+                  <span className="font-medium text-[#2D241E]">{t('paymentModal.totalAmount')}</span>
                   <span className="text-2xl font-bold text-[#4A5D4E]">
-                    {getTotalPrice(selectedMonths).toLocaleString()}원
+                    {getTotalPrice(selectedMonths).toLocaleString()}₫
                   </span>
                 </div>
               </div>
@@ -977,7 +977,7 @@ export default function ChaptersPage() {
                   onClick={() => setShowPaymentModal(false)}
                   className="flex-1 py-3 bg-[#F5F3ED] text-[#8C857E] rounded-xl font-medium hover:bg-[#E5E1D8] transition-colors"
                 >
-                  Hủy / 취소
+                  {t('paymentModal.cancel')}
                 </button>
                 <button
                   onClick={handlePaymentSubmit}
@@ -989,7 +989,7 @@ export default function ChaptersPage() {
                   ) : (
                     <>
                       <CreditCard className="w-5 h-5" />
-                      Đăng ký / 결제 신청
+                      {t('paymentModal.submit')}
                     </>
                   )}
                 </button>
@@ -997,9 +997,7 @@ export default function ChaptersPage() {
 
               {/* 안내 */}
               <p className="text-xs text-[#8C857E] text-center mt-4">
-                Sau khi xác nhận thanh toán, khóa học sẽ bắt đầu (trong 1-2 ngày làm việc).
-                <br />
-                입금 확인 후 수강이 시작됩니다. (영업일 기준 1-2일 소요)
+                {t('paymentModal.notice')}
               </p>
             </div>
           </div>

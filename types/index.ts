@@ -108,6 +108,7 @@ export interface User {
 
 // 코스 가격 정보
 export interface CoursePricing {
+  months1: number;            // 1개월 가격
   months3: number;            // 3개월 가격
   months6: number;            // 6개월 가격
   months12: number;           // 12개월 가격
