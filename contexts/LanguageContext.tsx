@@ -608,6 +608,10 @@ const translations: Record<Language, Record<string, string>> = {
     'paymentModal.confirmSent': '확인 요청됨',
     'paymentModal.depositConfirm': '입금 완료했습니다',
     'paymentModal.adminConfirm': '관리자가 영업일 기준 1-2일 내에 확인합니다.',
+    'paymentModal.cancelOrder': '주문 취소',
+    'paymentModal.cancelConfirm': '정말로 주문을 취소하시겠습니까?\nBạn có chắc chắn muốn hủy đơn hàng không?',
+    'paymentModal.cancelSuccess': '주문이 취소되었습니다.\nĐã hủy đơn hàng.',
+    'paymentModal.cancelFailed': '주문 취소에 실패했습니다.',
 
     // 오류 메시지
     'errors.loadCourses': '코스 목록을 불러오는데 실패했습니다.',
@@ -1242,6 +1246,10 @@ const translations: Record<Language, Record<string, string>> = {
     'paymentModal.confirmSent': 'Đã gửi yêu cầu',
     'paymentModal.depositConfirm': 'Tôi đã chuyển khoản',
     'paymentModal.adminConfirm': 'Quản trị viên sẽ xác nhận trong 1-2 ngày làm việc.',
+    'paymentModal.cancelOrder': 'Hủy đơn hàng',
+    'paymentModal.cancelConfirm': 'Bạn có chắc chắn muốn hủy đơn hàng không?\n정말로 주문을 취소하시겠습니까?',
+    'paymentModal.cancelSuccess': 'Đã hủy đơn hàng.\n주문이 취소되었습니다.',
+    'paymentModal.cancelFailed': 'Không thể hủy đơn hàng.',
 
     // 오류 메시지
     'errors.loadCourses': 'Không thể tải danh sách khóa học.',

@@ -8,7 +8,7 @@ import StudentLayout from '@/components/StudentLayout';
 import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Chapter, Course, User, Progress, Order, ShippingAddress } from '@/types';
-import { createOrder, getOrdersByUser, BANK_INFO, startCourse, checkSubscriptionStatus, confirmDeposit } from '@/services/orderService';
+import { createOrder, getOrdersByUser, BANK_INFO, startCourse, checkSubscriptionStatus, confirmDeposit, cancelOrder } from '@/services/orderService';
 import { notifyDepositRequest, getAdminUids } from '@/services/notificationService';
 import TextbookSelector from '@/components/TextbookSelector';
 import ShippingForm from '@/components/ShippingForm';
@@ -141,6 +141,9 @@ export default function ChaptersPage() {
 
   // 입금 확인 요청 로딩
   const [isConfirmingDeposit, setIsConfirmingDeposit] = useState(false);
+
+  // 주문 취소 로딩
+  const [isCancelling, setIsCancelling] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !userData) {
@@ -368,6 +371,28 @@ export default function ChaptersPage() {
     }
   };
 
+  // 주문 취소 핸들러
+  const handleCancelOrder = async () => {
+    const pendingOrder = userOrders.find(o => o.status === 'PENDING_PAYMENT');
+    if (!pendingOrder) return;
+
+    // 확인 다이얼로그
+    const confirmed = window.confirm(t('paymentModal.cancelConfirm'));
+    if (!confirmed) return;
+
+    setIsCancelling(true);
+    try {
+      await cancelOrder(pendingOrder.id);
+      toast.success(t('paymentModal.cancelSuccess'));
+      fetchUserOrders();
+    } catch (error) {
+      console.error('Cancel order error:', error);
+      toast.error(t('paymentModal.cancelFailed'));
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
   // 수강 시작 핸들러
   const handleStartCourse = async () => {
     if (!userData) return;
@@ -539,27 +564,59 @@ export default function ChaptersPage() {
                     </button>
                   </div>
 
-                  {/* 입금 완료 버튼 */}
+                  {/* 입금 완료 및 취소 버튼 */}
                   {!pendingOrder.depositConfirmed && (
-                    <button
-                      onClick={handleConfirmDeposit}
-                      disabled={isConfirmingDeposit}
-                      className="w-full py-3 bg-[#F59E0B] text-white rounded-xl font-medium hover:bg-[#D97706] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                    >
-                      {isConfirmingDeposit ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        <>
-                          <Send className="w-5 h-5" />
-                          {t('paymentModal.depositConfirm')}
-                        </>
-                      )}
-                    </button>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={handleCancelOrder}
+                        disabled={isCancelling}
+                        className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                      >
+                        {isCancelling ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <>
+                            <X className="w-5 h-5" />
+                            {t('paymentModal.cancelOrder')}
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={handleConfirmDeposit}
+                        disabled={isConfirmingDeposit}
+                        className="flex-[2] py-3 bg-[#F59E0B] text-white rounded-xl font-medium hover:bg-[#D97706] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                      >
+                        {isConfirmingDeposit ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <>
+                            <Send className="w-5 h-5" />
+                            {t('paymentModal.depositConfirm')}
+                          </>
+                        )}
+                      </button>
+                    </div>
                   )}
                   {pendingOrder.depositConfirmed && (
-                    <p className="text-sm text-[#92400E] text-center">
-                      {t('paymentModal.adminConfirm')}
-                    </p>
+                    <div className="space-y-3">
+                      <p className="text-sm text-[#92400E] text-center">
+                        {t('paymentModal.adminConfirm')}
+                      </p>
+                      <button
+                        onClick={handleCancelOrder}
+                        disabled={isCancelling}
+                        className="w-full py-2 text-gray-500 text-sm hover:text-gray-700 transition-all flex items-center justify-center gap-1"
+                      >
+                        {isCancelling ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <>
+                            <X className="w-4 h-4" />
+                            {t('paymentModal.cancelOrder')}
+                          </>
+                        )}
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
