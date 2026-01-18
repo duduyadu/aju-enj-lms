@@ -426,6 +426,7 @@ const translations: Record<Language, Record<string, string>> = {
     'courses.textbookDescription': '교재 설명',
     'courses.textbookDescPlaceholder': '교재에 대한 간단한 설명을 입력하세요',
     'courses.textbookNote': '교재를 활성화하면 학생들이 강의 구매 시 교재를 함께 구매할 수 있습니다. 배송지 정보는 주문 시 수집됩니다.',
+    'courses.hasTextbook': '교재 판매',
 
     // 성적 관리
     'grades.title': '성적 관리',
@@ -1059,6 +1060,7 @@ const translations: Record<Language, Record<string, string>> = {
     'courses.textbookDescription': 'Mô tả giáo trình',
     'courses.textbookDescPlaceholder': 'Nhập mô tả ngắn về giáo trình',
     'courses.textbookNote': 'Khi bật giáo trình, học viên có thể mua giáo trình cùng với khóa học. Thông tin giao hàng sẽ được thu thập khi đặt hàng.',
+    'courses.hasTextbook': 'Có giáo trình',
 
     // 성적 관리
     'grades.title': 'Quản lý Điểm',

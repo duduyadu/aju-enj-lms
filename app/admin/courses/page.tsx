@@ -644,17 +644,25 @@ export default function CourseManagement() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      {course.isActive ? (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.1em] text-botanical bg-botanical/10 rounded-full border border-botanical/20">
-                          <CheckCircle className="w-3.5 h-3.5" />
-                          {t('courses.active')}
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.1em] text-red-500 bg-red-50 rounded-full border border-red-100">
-                          <XCircle className="w-3.5 h-3.5" />
-                          {t('courses.inactive')}
-                        </span>
-                      )}
+                      <div className="flex flex-col gap-2">
+                        {course.isActive ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.1em] text-botanical bg-botanical/10 rounded-full border border-botanical/20 w-fit">
+                            <CheckCircle className="w-3.5 h-3.5" />
+                            {t('courses.active')}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.1em] text-red-500 bg-red-50 rounded-full border border-red-100 w-fit">
+                            <XCircle className="w-3.5 h-3.5" />
+                            {t('courses.inactive')}
+                          </span>
+                        )}
+                        {course.textbookInfo?.name && (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.1em] text-amber-600 bg-amber-50 rounded-full border border-amber-200 w-fit">
+                            <BookMarked className="w-3.5 h-3.5" />
+                            {t('courses.hasTextbook')}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
